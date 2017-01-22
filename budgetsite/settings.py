@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'budgetsite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'budget',                      
+        'USER': 'budgetdb_user',
+        'PASSWORD': 'Budg3tdbU$3r95',
+        'HOST': '192.168.1.201',
+        'PORT': '5432',
     }
 }
 
