@@ -1,1 +1,4 @@
 Django==1.10.3
+django-money==0.10.1
+psycopg2==2.6.2
+py-moneyed==0.6.0
