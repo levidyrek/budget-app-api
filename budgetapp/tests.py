@@ -2,7 +2,8 @@ import datetime
 
 from django.test import TestCase
 from datetime import date
-from .models import Budget, CategoryGroup, Category, CategoryBudget, Transaction, Income, Goal, LongTermGoal, BudgetGoal
+from .models import Budget, CategoryBudgetGroup, Category, CategoryBudget, Transaction, Income, Goal, LongTermGoal, BudgetGoal
+
 
 class ModelMethodTests(TestCase):
 
