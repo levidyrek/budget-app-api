@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from .models import (Budget, CategoryBudgetGroup, Category, CategoryBudget,
 					 Transaction, Income, LongTermGoal, BudgetGoal, OwnedModel)
 from .permissions import IsOwnerOrAdmin
@@ -123,18 +123,40 @@ class BudgetGoalViewSet(OwnedModelViewSet):
 		return BudgetGoal.objects.filter(owner=self.request.user)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserCreateView(generics.CreateAPIView):
+	"""
+	Used to create a user. Anonymous users can use this.
+	TODO: Prevent automated usage of this view
+	"""
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
-	permission_classes = (permissions.IsAdminUser,)
 
 	def perform_create(self, serializer):
 		check_for_owner_conflict(self, serializer.validated_data)
 		serializer.save()
 
+
+class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+	"""
+	Actions an authenticated user can do only to their own User
+	object (Retrieve, Update, Destroy). 
+	"""
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin,)
+
 	def perform_update(self, serializer):
 		check_for_owner_conflict(self, serializer.validated_data)
 		serializer.save()
+
+
+class UserListView(generics.ListAPIView):
+	"""
+	List view for Users. Only admin users can use this.
+	"""
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = (permissions.IsAdminUser,)
 
 
 """ API Exceptions """

@@ -116,46 +116,36 @@ class BaseTestCase(APITestCase):
 
 class BudgetTests(BaseTestCase):
     """
-    Ensures none of the actions (POST, PUT, LIST, DETAIL, DELETE) are allowed
-    without authentication
+    Ensures the actions (POST, PUT, LIST, DETAIL, DELETE) work as expected with
+    and without authentication
     """
 
     # --------- No Authentication tests ---------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, BUDGET_NAME)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, BUDGET_NAME)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, BUDGET_NAME)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, BUDGET_NAME)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, BUDGET_NAME)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        pass
 
 
 class CategoryTests(BaseTestCase):
