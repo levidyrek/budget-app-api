@@ -130,6 +130,7 @@ class UserCreateView(generics.CreateAPIView):
 	"""
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
+	permission_classes = (permissions.AllowAny,)
 
 	def perform_create(self, serializer):
 		check_for_owner_conflict(self, serializer.validated_data)
