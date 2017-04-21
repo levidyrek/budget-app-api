@@ -8,7 +8,8 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 	def has_object_permission(self, request, view, obj):
 		try:
-			has_permission = obj.owner == request.user
+			has_permission = obj == request.user or \
+							 obj.owner == request.user
 		except AttributeError:
 			print("Object has no attribute 'owner'")
 			has_permission = False

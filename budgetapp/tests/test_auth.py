@@ -30,49 +30,49 @@ post_data = {
                         'due_date': date.today()},
     BUDGETGOAL_NAME: {'name': 'test', 'goal_amount': 100, 'progress': 0,
                       'long_term_goal': '', 'budget': ''},
-    USER_NAME: {'username': 'test2', 'email': 'test2@test.com', 'password': 'test'}
+    USER_NAME: {'username': 'test', 'email': 'test@test.com', 'password': 'test'}
 }
-put_data = {
-    BUDGET_NAME: {'month': 'FEB', 'year': 2018},
-    CATEGORY_NAME: {'name': 'Dining Out'},
-    CATEGORYBUDGETGROUP_NAME: {'name': 'test2'},
-    CATEGORYBUDGET_NAME: {'limit': 200, 'spent': 100},
-    TRANSACTION_NAME: {'amount': 200},
-    INCOME_NAME: {'amount': 200},
-    LONGTERMGOAL_NAME: {'name': 'test2'},
-    BUDGETGOAL_NAME: {'name': 'test2'},
-    USER_NAME: {'username': 'test22'}
-}
+test_users = [
+    {'username': 'test0', 'email': 'test0@test.com', 'password': 'test0'},
+    {'username': 'test1', 'email': 'test1@test.com', 'password': 'test1'},
+]
 
 
 # ------- Helper Functions ------- #
 
-TEST_USER_NAME = 'test'
-TEST_USER_EMAIL = 'test@test.com'
-TEST_USER_PW = '1111'
 
-
-def create_test_user():
+def create_test_users():
     """
-    Creates a test user
+    Creates test users from test_users data
     """
-    User.objects.create_user(username=TEST_USER_NAME,
-                             email=TEST_USER_EMAIL,
-                             password=TEST_USER_PW)
+    for test_user in test_users:
+        User.objects.create_user(username=test_user['username'],
+                                 email=test_user['email'],
+                                 password=test_user['password'])
 
 
-def create_test_model(client, model_name):
+def login_test_user(client, index=0):
     """
-    Logs in as test user (create_test_user must be called first) and
+    Logs in selected test user
+    :param client: 
+    :param index: The index of the desired user in test_users
+    :return: 
+    """
+    user = User.objects.get(username=test_users[index]['username'])
+    if user is None:
+        raise Exception('Test user does not exist')
+    client.force_login(user)
+
+
+def create_test_model(client, model_name, test_user_index=0):
+    """
+    Logs in as test user (create_test_users must be called first) and
     calls the test model function corresponding to the given name
     :param client: 
     :param model_name: Name of the model to be created
     :return: The post response
     """
-    user = User.objects.get(username='test')
-    if user is None:
-        raise Exception('Test user does not exist')
-    client.force_login(user)
+    login_test_user(client, test_user_index)
 
     url = app_name + ':' + model_name + '-list'
     test_data = post_data[model_name]
@@ -87,35 +87,60 @@ def create_test_model(client, model_name):
     return response
 
 
-def list_test(client, model_name):
+def list_test(client, model_name, auth=False, test_user_index=0):
     url = app_name + ':' + model_name + '-list'
-    return client.get(reverse(url))
+    if auth:
+        login_test_user(client, test_user_index)
+    response = client.get(reverse(url))
+    if auth:
+        client.logout()
+    return response
 
 
-def post_test(client, model_name):
+def post_test(client, model_name, auth=False, test_user_index=0):
     url = app_name + ':' + model_name + '-list'
-    return client.post(reverse(url), post_data[model_name])
+    if auth:
+        login_test_user(client, test_user_index)
+    response = client.post(reverse(url), post_data[model_name])
+    if auth:
+        client.logout()
+    return response
 
 
-def detail_test(client, model_name):
+def detail_test(client, model_name, auth=False, test_user_index=0):
     response = create_test_model(client, model_name)
-    return client.get(response.data['url'])
+    if auth:
+        login_test_user(client, test_user_index)
+    response = client.get(response.data['url'])
+    if auth:
+        client.logout()
+    return response
 
 
-def put_test(client, model_name):
+def put_test(client, model_name, auth=False, test_user_index=0):
     response = create_test_model(client, model_name)
-    return client.put(response.data['url'], put_data[model_name])
+    if auth:
+        login_test_user(client, test_user_index)
+    response = client.put(response.data['url'], post_data[model_name])
+    if auth:
+        client.logout()
+    return response
 
 
-def delete_test(client, model_name):
+def delete_test(client, model_name, auth=False, test_user_index=0):
     response = create_test_model(client, model_name)
-    return client.delete(response.data['url'])
+    if auth:
+        login_test_user(client, test_user_index)
+    response = client.delete(response.data['url'])
+    if auth:
+        client.logout()
+    return response
 
 
 class BaseTestCase(APITestCase):
 
     def setUp(self):
-        create_test_user()
+        create_test_users()
         self.setup_test_models(self.client)
 
     @staticmethod
@@ -134,44 +159,64 @@ class BudgetTests(BaseTestCase):
     # --------- No Authentication tests ---------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # --------- Authentication Tests ------------ #
 
     def test_list_auth(self):
-        pass
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    # ---------- Cross-User Actions ----------- #
+
+    # def test_detail_cross_user(self):
+    #     response = detail_test(self.client, self.model_name, True)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #
+    # def test_post_cross_user(self):
+    #     response = post_test(self.client, self.model_name, True)
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #
+    # def test_put_cross_user(self):
+    #     response = put_test(self.client, self.model_name, True)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #
+    # def test_delete_cross_user(self):
+    #     response = detail_test(self.client, self.model_name, True)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CategoryTests(BaseTestCase):
@@ -181,39 +226,46 @@ class CategoryTests(BaseTestCase):
     # --------- No authentication tests --------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CategoryBudgetGroupTests(BaseTestCase):
@@ -230,39 +282,46 @@ class CategoryBudgetGroupTests(BaseTestCase):
     # --------- No authentication tests --------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CategoryBudgetTests(BaseTestCase):
@@ -284,39 +343,46 @@ class CategoryBudgetTests(BaseTestCase):
     # ------ No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class TransactionTests(BaseTestCase):
@@ -333,39 +399,46 @@ class TransactionTests(BaseTestCase):
     # -------- No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class IncomeTests(BaseTestCase):
@@ -382,39 +455,46 @@ class IncomeTests(BaseTestCase):
     # -------- No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class LongTermGoalTests(BaseTestCase):
@@ -424,39 +504,46 @@ class LongTermGoalTests(BaseTestCase):
     # -------- No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class BudgetGoalTests(BaseTestCase):
@@ -478,39 +565,46 @@ class BudgetGoalTests(BaseTestCase):
     # -------- No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
-        """
-        POST
-        """
         response = post_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
         response = put_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = detail_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # --------- Authentication Tests ------------ #
+
+    def test_list_auth(self):
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        response = post_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        response = put_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        response = detail_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class UserTests(BaseTestCase):
@@ -520,46 +614,66 @@ class UserTests(BaseTestCase):
 
     def setUp(self):
         super(UserTests, self).setUp()
-        test_pk = User.objects.get(username=TEST_USER_NAME).pk
+        test_pk = User.objects.get(username=test_users[0]['username']).pk
         self.detail_url = reverse(app_name + ':' + self.model_name + '-detail',
-                             args=[test_pk])
+                                  args=[test_pk])
 
     # -------- No authentication tests -------- #
 
     def test_list_no_auth(self):
-        """
-        LIST
-        """
         response = list_test(self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_detail_no_auth(self):
-        """
-        DETAIL
-        """
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_post_no_auth(self):
         """
-        POST
-        
-        Note: Unlike most, should succeed without authentication 
+        Note: Should succeed without authentication 
         """
         url = app_name + ':' + self.model_name + '-create'
         response = self.client.post(reverse(url), post_data[self.model_name])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_put_no_auth(self):
-        """
-        PUT
-        """
-        response = self.client.put(self.detail_url, put_data[USER_NAME])
+        response = self.client.put(self.detail_url, )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_no_auth(self):
-        """
-        DELETE
-        """
         response = self.client.delete(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # -------- Authentication tests -------- #
+
+    def test_list_auth(self):
+        """
+        Forbidden for non-admin users
+        """
+        response = list_test(self.client, self.model_name, True)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_detail_auth(self):
+        login_test_user(self.client)
+        response = self.client.get(self.detail_url)
+        self.client.logout()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_auth(self):
+        login_test_user(self.client)
+        url = app_name + ':' + self.model_name + '-create'
+        response = self.client.post(reverse(url), post_data[self.model_name])
+        self.client.logout()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_put_auth(self):
+        login_test_user(self.client)
+        response = self.client.put(self.detail_url, post_data[USER_NAME])
+        self.client.logout()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_auth(self):
+        login_test_user(self.client)
+        response = self.client.delete(self.detail_url)
+        self.client.logout()
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
