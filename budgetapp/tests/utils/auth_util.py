@@ -86,14 +86,19 @@ def create_test_model(client, model_name, test_user_index=0):
     return response
 
 
+# ---------- LIST ------------- #
+
+
 def list_test(client, model_name, auth=False, test_user_index=0):
     url = app_name + ':' + model_name + '-list'
     if auth:
         login_test_user(client, test_user_index)
     response = client.get(reverse(url))
-    if auth:
-        client.logout()
+    client.logout()
     return response
+
+
+# ----------- POST ------------ #
 
 
 def post_test(client, model_name, auth=False, test_user_index=0):
@@ -101,9 +106,11 @@ def post_test(client, model_name, auth=False, test_user_index=0):
     if auth:
         login_test_user(client, test_user_index)
     response = client.post(reverse(url), post_data[model_name])
-    if auth:
-        client.logout()
+    client.logout()
     return response
+
+
+# ------------ DETAIL ------------ #
 
 
 def detail_test(client, model_name, auth=False, test_user_index=0):
@@ -111,8 +118,7 @@ def detail_test(client, model_name, auth=False, test_user_index=0):
     if auth:
         login_test_user(client, test_user_index)
     response = client.get(response.data['url'])
-    if auth:
-        client.logout()
+    client.logout()
     return response
 
 
@@ -130,29 +136,47 @@ def detail_cross_user_test(client, model_name):
     return response
 
 
+# ------------- PUT --------------- #
+
+
 def put_test(client, model_name, auth=False, test_user_index=0):
-    response = create_test_model(client, model_name)
+    response = create_test_model(client, model_name, test_user_index)
     if auth:
         login_test_user(client, test_user_index)
     response = client.put(response.data['url'], post_data[model_name])
-    if auth:
-        client.logout()
+    client.logout()
     return response
 
 
-# def put_cross_user_test(client, model_name):
-#     response = create_test_model(client, model_name)
-#     login_test_user(client, test_user_index)
-#     response = client.put(response.data['url'], post_data[model_name])
-#     client.logout()
-#     return response
+def put_cross_user_test(client, model_name):
+    """ 
+    Creates a model with one test user, then tries to update it with another 
+    :param client: 
+    :param model_name: 
+    :return: The response
+    """
+    response = create_test_model(client, model_name, 0)
+    login_test_user(client, 1)
+    response = client.put(response.data['url'], post_data[model_name])
+    client.logout()
+    return response
+
+
+# ------------ DELETE --------------- #
 
 
 def delete_test(client, model_name, auth=False, test_user_index=0):
-    response = create_test_model(client, model_name)
+    response = create_test_model(client, model_name, test_user_index)
     if auth:
         login_test_user(client, test_user_index)
     response = client.delete(response.data['url'])
-    if auth:
-        client.logout()
+    client.logout()
+    return response
+
+
+def delete_cross_user_test(client, model_name):
+    response = create_test_model(client, model_name, 0)
+    login_test_user(client, 1)
+    response = client.delete(response.data['url'])
+    client.logout()
     return response
