@@ -71,6 +71,9 @@ class Budget(OwnedModel):
 	)
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 
+	class Meta:
+		unique_together = ('owner', 'month', 'year')
+
 	def __str__(self):
 		return self.owner.username + \
 			   '\'s ' + \
@@ -85,6 +88,10 @@ class Category(OwnedModel):
 	name = models.CharField(max_length=100)
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 
+	class Meta:
+		verbose_name_plural = 'categories'
+		unique_together = ('owner', 'name',)
+
 	def __str__(self):
 		return self.name
 
@@ -94,6 +101,9 @@ class CategoryBudgetGroup(OwnedModel):
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 	name = models.CharField(max_length=100)
 	budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name=related_name)
+
+	class Meta:
+		unique_together = ('owner', 'name', 'budget')
 
 	def __str__(self):
 		return self.name
@@ -106,6 +116,9 @@ class CategoryBudget(OwnedModel):
 	group = models.ForeignKey(CategoryBudgetGroup, on_delete=models.CASCADE, related_name=related_name)
 	limit = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
 	spent = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
+
+	class Meta:
+		unique_together = ('owner', 'category', 'group',)
 
 	def get_money_left(self):
 		return self.limit - self.spent
@@ -169,3 +182,6 @@ class BudgetGoal(Goal):
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 	budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name=related_name)
 	long_term_goal = models.ForeignKey(LongTermGoal, on_delete=models.CASCADE, null=True, related_name=related_name)
+
+	class Meta:
+		unique_together = ('owner', 'budget', 'long_term_goal',)

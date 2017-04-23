@@ -4,7 +4,8 @@ from .models import (Budget, CategoryBudgetGroup, Category, CategoryBudget,
 from django.contrib.auth.models import User
 
 # Multi-use fields
-owner_field = serializers.ReadOnlyField(source='owner.username')
+owner_field = serializers.PrimaryKeyRelatedField(read_only=True,
+                                                 default=serializers.CurrentUserDefault())
 budget_field = serializers.HyperlinkedRelatedField(
     queryset=Budget.objects.all(),
     view_name='budgetapp:budget-detail'
@@ -14,9 +15,9 @@ category_budget_field = serializers.HyperlinkedRelatedField(
     view_name='budgetapp:categorybudget-detail'
 )
 category_budgets_field = serializers.HyperlinkedRelatedField(
-    queryset=CategoryBudget.objects.all(),
     view_name='budgetapp:categorybudget-detail',
-    many=True
+    many=True,
+    read_only=True
 )
 
 
@@ -24,14 +25,15 @@ class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="budgetapp:longtermgoal-detail")
     owner = owner_field
     budget_goals = serializers.HyperlinkedRelatedField(
-        queryset=BudgetGoal.objects.all(),
         view_name='budgetapp:budgetgoal-detail',
-        many=True
+        many=True,
+        read_only=True
     )
 
     class Meta:
         model = LongTermGoal
-        fields = ('url', 'name', 'goal_amount', 'progress', 'due_date', 'owner', 'budget_goals')
+        fields = ('url', 'name', 'goal_amount', 'progress', 'due_date', 'owner',
+                  'budget_goals',)
 
 
 class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
@@ -80,14 +82,14 @@ class CategoryBudgetSerializer(serializers.HyperlinkedModelSerializer):
         view_name='budgetapp:categorybudgetgroup-detail'
     )
     transactions = serializers.HyperlinkedRelatedField(
-        queryset=Transaction.objects.all(),
         view_name='budgetapp:transaction-detail',
-        many=True
+        many=True,
+        read_only=True
     )
 
     class Meta:
         model = CategoryBudget
-        fields = ('url', 'owner', 'category', 'group', 'limit', 'spent', 'transactions')
+        fields = ('url', 'owner', 'category', 'group', 'limit', 'spent', 'transactions',)
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -97,7 +99,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('url', 'name', 'owner', 'category_budgets')
+        fields = ('url', 'name', 'owner', 'category_budgets',)
 
 
 class CategoryBudgetGroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -111,57 +113,56 @@ class CategoryBudgetGroupSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = CategoryBudgetGroup
-        fields = ('url', 'owner', 'name', 'budget', 'category_budgets')
+        fields = ('url', 'owner', 'name', 'budget', 'category_budgets',)
 
 
 class BudgetSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budget-detail")
     owner = owner_field
     category_budget_groups = serializers.HyperlinkedRelatedField(
-        queryset=CategoryBudgetGroup.objects.all(),
         view_name='budgetapp:categorybudgetgroup-detail',
-        many=True
+        many=True,
+        read_only=True
     )
     incomes = serializers.HyperlinkedRelatedField(
-        queryset=Income.objects.all(),
         view_name='budgetapp:income-detail',
-        many=True
+        many=True,
+        read_only=True
     )
     budget_goals = serializers.HyperlinkedRelatedField(
-        queryset=BudgetGoal.objects.all(),
         view_name='budgetapp:budgetgoal-detail',
-        many=True
+        many=True,
+        read_only=True
     )
 
     class Meta:
         model = Budget
-        unique_together = ('owner', 'month', 'year')
-        fields = ('url', 'month', 'year', 'owner', 'category_budget_groups', 'incomes',
-                  'budget_goals')
+        fields = ('url', 'owner', 'month', 'year', 'category_budget_groups',
+                  'incomes', 'budget_goals')
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="budgetapp:user-detail")
     budgets = serializers.HyperlinkedRelatedField(
-        queryset=Budget.objects.all(),
         view_name='budgetapp:budget-detail',
-        many=True
+        many=True,
+        read_only=True
     )
     long_term_goals = serializers.HyperlinkedRelatedField(
-        queryset=LongTermGoal.objects.all(),
         view_name='budgetapp:longtermgoal-detail',
-        many=True
+        many=True,
+        read_only=True
     )
     categories = serializers.HyperlinkedRelatedField(
-        queryset=Category.objects.all(),
         view_name='budgetapp:category-detail',
-        many=True
+        many=True,
+        read_only=True
     )
 
     class Meta:
         model = User
-        fields = ('url', 'email', 'username', 'password', 'budgets',
-                  'long_term_goals', 'categories')
+        fields = ('url', 'email', 'username', 'password',
+                  'budgets', 'long_term_goals', 'categories',)
         extra_kwargs = {
             'password': {'write_only': True}
         }
