@@ -96,8 +96,8 @@ class Category(OwnedModel):
 		return self.name
 
 
-class CategoryBudgetGroup(OwnedModel):
-	related_name = 'category_budget_groups'
+class BudgetCategoryGroup(OwnedModel):
+	related_name = 'budget_category_groups'
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 	name = models.CharField(max_length=100)
 	budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name=related_name)
@@ -109,11 +109,11 @@ class CategoryBudgetGroup(OwnedModel):
 		return self.name
 
 
-class CategoryBudget(OwnedModel):
-	related_name = 'category_budgets'
+class BudgetCategory(OwnedModel):
+	related_name = 'budget_categories'
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 	category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name=related_name)
-	group = models.ForeignKey(CategoryBudgetGroup, on_delete=models.CASCADE, related_name=related_name)
+	group = models.ForeignKey(BudgetCategoryGroup, on_delete=models.CASCADE, related_name=related_name)
 	limit = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
 	spent = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
 
@@ -132,13 +132,13 @@ class Transaction(OwnedModel):
 	owner = models.ForeignKey('auth.User', related_name=related_name)
 	amount = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
 	recipient = models.CharField(max_length=100)
-	category_budget = models.ForeignKey(CategoryBudget, on_delete=models.CASCADE, related_name=related_name)
+	budget_category = models.ForeignKey(BudgetCategory, on_delete=models.CASCADE, related_name=related_name)
 	date = models.DateField()
 
 	def __str__(self):
 		return str(self.amount) + ' ' \
 			   + self.recipient + ' ' \
-			   + str(self.category_budget) + ' ' \
+			   + str(self.budget_category) + ' ' \
 			   + str(self.date)
 
 

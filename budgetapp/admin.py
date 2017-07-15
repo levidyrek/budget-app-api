@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (Budget, CategoryBudgetGroup, Category, CategoryBudget,
+from .models import (Budget, BudgetCategoryGroup, Category, BudgetCategory,
 					 Transaction, Income, LongTermGoal, BudgetGoal)
 
 
@@ -11,11 +11,11 @@ class CategoryAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'name')
 
 
-class CategoryBudgetGroupAdmin(admin.ModelAdmin):
+class BudgetCategoryGroupAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'name', 'budget')
 
 
-class CategoryBudgetAdmin(admin.ModelAdmin):
+class BudgetCategoryAdmin(admin.ModelAdmin):
 	list_display = ('owner', 'category', 'group')
 
 
@@ -32,13 +32,13 @@ class LongTermGoalAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-	list_display = ('owner', 'amount', 'recipient', 'category_budget', 'date',)
+	list_display = ('owner', 'amount', 'recipient', 'budget_category', 'date',)
 
 
 admin.site.register(Budget, BudgetAdmin)
-admin.site.register(CategoryBudgetGroup, CategoryBudgetGroupAdmin)
+admin.site.register(BudgetCategoryGroup, BudgetCategoryGroupAdmin)
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(CategoryBudget, CategoryBudgetAdmin)
+admin.site.register(BudgetCategory, BudgetCategoryAdmin)
 admin.site.register(Income, IncomeAdmin)
 admin.site.register(LongTermGoal, LongTermGoalAdmin)
 admin.site.register(BudgetGoal, BudgetGoalAdmin)
