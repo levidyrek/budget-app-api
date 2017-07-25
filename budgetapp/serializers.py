@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import (Budget, BudgetCategoryGroup, Category, BudgetCategory,
+from .models import (Budget, BudgetCategoryGroup, BudgetCategory,
                      Transaction, Income, LongTermGoal, BudgetGoal)
 from django.contrib.auth.models import User
 from rest_framework.utils.serializer_helpers import ReturnDict
@@ -116,22 +116,9 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         list_serializer_class = PkDictSerializer
 
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:category-detail")
-    owner = owner_field
-
-    class Meta:
-        model = Category
-        fields = ('url', 'name', 'owner',)
-
-
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budgetcategory-detail")
     owner = owner_field
-    category = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset=Category.objects.all()
-    )
     group = serializers.PrimaryKeyRelatedField(
         queryset=BudgetCategoryGroup.objects.all()
     )
@@ -228,16 +215,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True
     )
-    categories = serializers.HyperlinkedRelatedField(
-        view_name='budgetapp:category-detail',
-        many=True,
-        read_only=True
-    )
 
     class Meta:
         model = User
         fields = ('url', 'email', 'username', 'password',
-                  'budgets', 'long_term_goals', 'categories',)
+                  'budgets', 'long_term_goals',)
         extra_kwargs = {
             'password': {'write_only': True}
         }

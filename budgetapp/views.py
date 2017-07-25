@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
 from rest_framework import permissions
 from rest_framework import viewsets, generics
-from .models import (Budget, BudgetCategoryGroup, Category, BudgetCategory,
+from .models import (Budget, BudgetCategoryGroup, BudgetCategory,
 					 Transaction, Income, LongTermGoal, BudgetGoal, OwnedModel)
 from .permissions import IsOwnerOrAdmin
 from .serializers import (BudgetDetailSerializer, BudgetListSerializer, BudgetCategoryGroupSerializer,
-						  CategorySerializer, BudgetCategorySerializer, TransactionSerializer,
+						  BudgetCategorySerializer, TransactionSerializer,
 						  IncomeSerializer, LongTermGoalSerializer, BudgetGoalSerializer,
 						  UserSerializer)
 from rest_framework.exceptions import APIException
@@ -91,15 +91,6 @@ class IncomeViewSet(OwnedModelViewSet):
 
 	def get_queryset(self):
 		return Income.objects.filter(owner=self.request.user)
-
-
-class CategoryViewSet(OwnedModelViewSet):
-	queryset = Category.objects.all()
-	serializer_class = CategorySerializer
-	permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-	def get_queryset(self):
-		return Category.objects.filter(owner=self.request.user)
 
 
 class BudgetCategoryGroupViewSet(OwnedModelViewSet):

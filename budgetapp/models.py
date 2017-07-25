@@ -83,19 +83,6 @@ class Budget(OwnedModel):
 			   ' Budget'
 
 
-class Category(OwnedModel):
-	related_name = 'categories'
-	name = models.CharField(max_length=100)
-	owner = models.ForeignKey('auth.User', related_name=related_name)
-
-	class Meta:
-		verbose_name_plural = 'categories'
-		unique_together = ('owner', 'name',)
-
-	def __str__(self):
-		return self.name
-
-
 class BudgetCategoryGroup(OwnedModel):
 	related_name = 'budget_category_groups'
 	owner = models.ForeignKey('auth.User', related_name=related_name)
@@ -106,13 +93,13 @@ class BudgetCategoryGroup(OwnedModel):
 		unique_together = ('owner', 'name', 'budget')
 
 	def __str__(self):
-		return self.name
+		return self.name + ' [owner=' + self.owner.username + ']'
 
 
 class BudgetCategory(OwnedModel):
 	related_name = 'budget_categories'
 	owner = models.ForeignKey('auth.User', related_name=related_name)
-	category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name=related_name)
+	category = models.CharField(max_length=100)
 	group = models.ForeignKey(BudgetCategoryGroup, on_delete=models.CASCADE, related_name=related_name)
 	limit = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
 	spent = MoneyField(max_digits=10, decimal_places=2, default=0, default_currency='USD')
@@ -124,7 +111,10 @@ class BudgetCategory(OwnedModel):
 		return self.limit - self.spent
 
 	def __str__(self):
-		return str(self.category) + ' ' + self.group.budget.month + ' ' + str(self.group.budget.year)
+		return str(self.category) + ' ' + \
+			   self.group.budget.month + ' ' + \
+			   str(self.group.budget.year) + \
+			   ' [owner=' + self.owner.username + ']'
 
 
 class Transaction(OwnedModel):

@@ -1,14 +1,10 @@
 from django.contrib import admin
-from .models import (Budget, BudgetCategoryGroup, Category, BudgetCategory,
+from .models import (Budget, BudgetCategoryGroup, BudgetCategory,
 					 Transaction, Income, LongTermGoal, BudgetGoal)
 
 
 class BudgetAdmin(admin.ModelAdmin):
 	list_display = ('month', 'year', 'owner')
-
-
-class CategoryAdmin(admin.ModelAdmin):
-	list_display = ('owner', 'name')
 
 
 class BudgetCategoryGroupAdmin(admin.ModelAdmin):
@@ -37,7 +33,6 @@ class TransactionAdmin(admin.ModelAdmin):
 
 admin.site.register(Budget, BudgetAdmin)
 admin.site.register(BudgetCategoryGroup, BudgetCategoryGroupAdmin)
-admin.site.register(Category, CategoryAdmin)
 admin.site.register(BudgetCategory, BudgetCategoryAdmin)
 admin.site.register(Income, IncomeAdmin)
 admin.site.register(LongTermGoal, LongTermGoalAdmin)

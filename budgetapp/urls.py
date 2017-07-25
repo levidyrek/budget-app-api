@@ -8,7 +8,6 @@ app_name = 'budgetapp'
 # DRF Router
 router = DefaultRouter()
 router.register(r'budgets', views.BudgetViewSet)
-router.register(r'categories', views.CategoryViewSet)
 router.register(r'budgetcategories', views.BudgetCategoryViewSet)
 router.register(r'incomes', views.IncomeViewSet)
 router.register(r'budgetgoals', views.BudgetGoalViewSet)
