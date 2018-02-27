@@ -1,1 +1,3 @@
-.idea/
+budgetapp/__pycache__
+budgetapp/migrations/__pycache__
+budgetsite/__pycache__

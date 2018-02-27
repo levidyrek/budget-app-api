@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from rest_framework.utils.serializer_helpers import ReturnDict
 
 # Multi-use fields
-owner_field = serializers.PrimaryKeyRelatedField(read_only=True,
-                                                 default=serializers.CurrentUserDefault())
+owner_field = serializers.PrimaryKeyRelatedField(
+    read_only=True, default=serializers.CurrentUserDefault())
 budget_field = serializers.HyperlinkedRelatedField(
     queryset=Budget.objects.all(),
     view_name='budgetapp:budget-detail'
@@ -23,11 +23,12 @@ budgets_category_field = serializers.HyperlinkedRelatedField(
 
 
 class DictSerializer(serializers.ListSerializer):
-    """
-    Overrides default ListSerializer to return a dict with a custom field from each item
-    as the key. Makes it easier to normalize the data so that there is minimal
-    nesting. Must override to_representation to produce a dict with the desired keys.
-    """
+    '''
+    Overrides default ListSerializer to return a dict with a custom field from
+    each item as the key. Makes it easier to normalize the data so that there
+    is minimal nesting. Must override to_representation to produce a dict with
+    the desired keys.
+    '''
 
     @property
     def data(self):
@@ -47,7 +48,8 @@ class PkDictSerializer(DictSerializer):
             try:
                 ret[item['pk']] = item
             except AttributeError:
-                raise Exception('Item has no pk. Returning list instead of dict.')
+                raise Exception(
+                    'Item has no pk. Returning list instead of dict.')
 
         return ret
 
@@ -61,13 +63,15 @@ class MonthYearDictSerializer(DictSerializer):
             try:
                 ret[item['month'] + str(item['year'])] = item
             except AttributeError:
-                raise Exception('Item has no month/year. Returning list instead of dict.')
+                raise Exception(
+                    'Item has no month/year. Returning list instead of dict.')
 
         return ret
 
 
 class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:longtermgoal-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:longtermgoal-detail')
     owner = owner_field
     budget_goals = serializers.HyperlinkedRelatedField(
         view_name='budgetapp:budgetgoal-detail',
@@ -77,12 +81,13 @@ class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = LongTermGoal
-        fields = ('url', 'name', 'goal_amount', 'progress', 'due_date', 'owner',
-                  'budget_goals',)
+        fields = ('url', 'name', 'goal_amount', 'progress', 'due_date',
+                  'owner', 'budget_goals',)
 
 
 class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budgetgoal-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:budgetgoal-detail')
     owner = owner_field
     budget = budget_field
     long_term_goal = serializers.HyperlinkedRelatedField(
@@ -92,11 +97,13 @@ class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetGoal
-        fields = ('url', 'owner', 'name', 'goal_amount', 'progress', 'budget', 'long_term_goal')
+        fields = ('url', 'owner', 'name', 'goal_amount', 'progress', 'budget',
+                  'long_term_goal')
 
 
 class IncomeSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:income-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:income-detail')
     owner = owner_field
     budget = budget_field
 
@@ -106,18 +113,21 @@ class IncomeSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:transaction-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:transaction-detail')
     owner = owner_field
     budget_category = budget_category_field
 
     class Meta:
         model = Transaction
-        fields = ('pk', 'url', 'owner', 'amount', 'recipient', 'budget_category', 'date')
+        fields = ('pk', 'url', 'owner', 'amount', 'recipient',
+                  'budget_category', 'date')
         list_serializer_class = PkDictSerializer
 
 
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budgetcategory-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:budgetcategory-detail')
     owner = owner_field
     group = serializers.PrimaryKeyRelatedField(
         queryset=BudgetCategoryGroup.objects.all()
@@ -129,12 +139,14 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetCategory
-        fields = ('url', 'pk', 'owner', 'category', 'group', 'limit', 'spent', 'transactions',)
+        fields = ('url', 'pk', 'owner', 'category', 'group', 'limit', 'spent',
+                  'transactions',)
         list_serializer_class = PkDictSerializer
 
 
 class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budgetcategorygroup-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:budgetcategorygroup-detail')
     owner = owner_field
     budget = serializers.HyperlinkedRelatedField(
         queryset=Budget.objects.all(),
@@ -152,7 +164,8 @@ class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BudgetDetailSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budget-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:budget-detail')
     owner = owner_field
     budget_category_groups = BudgetCategoryGroupSerializer(
         many=True,
@@ -170,7 +183,8 @@ class BudgetDetailSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     def get_budget_categories(self, budget):
-        budget_cats = BudgetCategory.objects.filter(group__budget__pk=budget.pk)
+        budget_cats = BudgetCategory.objects.filter(
+            group__budget__pk=budget.pk)
         serializer = BudgetCategorySerializer(
             budget_cats,
             many=True,
@@ -179,7 +193,8 @@ class BudgetDetailSerializer(serializers.HyperlinkedModelSerializer):
         return serializer.data
 
     def get_transactions(self, budget):
-        result = Transaction.objects.filter(budget_category__group__budget__pk=budget.pk)
+        result = Transaction.objects.filter(
+            budget_category__group__budget__pk=budget.pk)
         serializer = TransactionSerializer(
             result,
             many=True,
@@ -190,11 +205,13 @@ class BudgetDetailSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Budget
         fields = ('url', 'owner', 'month', 'year', 'budget_category_groups',
-                  'budget_categories', 'incomes', 'transactions', 'budget_goals')
+                  'budget_categories', 'incomes', 'transactions',
+                  'budget_goals')
 
 
 class BudgetListSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:budget-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:budget-detail')
     owner = owner_field
 
     class Meta:
@@ -204,7 +221,8 @@ class BudgetListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="budgetapp:user-detail")
+    url = serializers.HyperlinkedIdentityField(
+        view_name='budgetapp:user-detail')
     budgets = serializers.HyperlinkedRelatedField(
         view_name='budgetapp:budget-detail',
         many=True,

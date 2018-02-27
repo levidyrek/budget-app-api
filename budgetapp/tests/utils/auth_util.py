@@ -20,15 +20,21 @@ post_data = {
     BUDGET_NAME: {'month': 'JAN', 'year': 2017},
     CATEGORY_NAME: {'name': 'Groceries'},
     CATEGORYBUDGETGROUP_NAME: {'name': 'test', 'budget': ''},
-    CATEGORYBUDGET_NAME: {'limit': 100, 'spent': 0, 'group': '', 'category': ''},
-    TRANSACTION_NAME: {'amount': 100, 'recipient': 'test', 'category_budget': '',
-                       'date': date.today()},
+    CATEGORYBUDGET_NAME: {
+        'limit': 100, 'spent': 0, 'group': '', 'category': ''
+    },
+    TRANSACTION_NAME: {
+        'amount': 100, 'recipient': 'test', 'category_budget': '',
+        'date': date.today()
+    },
     INCOME_NAME: {'amount': 100, 'name': 'paycheck 1', 'budget': ''},
     LONGTERMGOAL_NAME: {'name': 'test', 'goal_amount': 100, 'progress': 0,
                         'due_date': date.today()},
     BUDGETGOAL_NAME: {'name': 'test', 'goal_amount': 100, 'progress': 0,
                       'long_term_goal': '', 'budget': ''},
-    USER_NAME: {'username': 'test', 'email': 'test@test.com', 'password': 'test'}
+    USER_NAME: {
+        'username': 'test', 'email': 'test@test.com', 'password': 'test'
+    }
 }
 test_users = [
     {'username': 'test0', 'email': 'test0@test.com', 'password': 'test0'},
@@ -52,9 +58,9 @@ def create_test_users():
 def login_test_user(client, index=0):
     """
     Logs in selected test user
-    :param client: 
+    :param client:
     :param index: The index of the desired user in test_users
-    :return: 
+    :return:
     """
     user = User.objects.get(username=test_users[index]['username'])
     if user is None:
@@ -66,7 +72,7 @@ def create_test_model(client, model_name, test_user_index=0):
     """
     Logs in as test user (create_test_users must be called first) and
     calls the test model function corresponding to the given name
-    :param client: 
+    :param client:
     :param model_name: Name of the model to be created
     :param test_user_index: Index of the user to create the object with
     :return: The post response
@@ -123,10 +129,10 @@ def detail_test(client, model_name, auth=False, test_user_index=0):
 
 
 def detail_cross_user_test(client, model_name):
-    """ 
-    Creates a model with one test user, then tries to retrieve it with another 
-    :param client: 
-    :param model_name: 
+    """
+    Creates a model with one test user, then tries to retrieve it with another
+    :param client:
+    :param model_name:
     :return: The response
     """
     response = create_test_model(client, model_name, 0)
@@ -149,10 +155,10 @@ def put_test(client, model_name, auth=False, test_user_index=0):
 
 
 def put_cross_user_test(client, model_name):
-    """ 
-    Creates a model with one test user, then tries to update it with another 
-    :param client: 
-    :param model_name: 
+    """
+    Creates a model with one test user, then tries to update it with another
+    :param client:
+    :param model_name:
     :return: The response
     """
     response = create_test_model(client, model_name, 0)

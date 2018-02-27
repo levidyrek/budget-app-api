@@ -1,7 +1,9 @@
-Django==1.10.3
+Django==1.11.10
+django-cors-headers==2.1.0
 django-filter==1.0.1
 django-money==0.10.1
 djangorestframework==3.5.3
 Markdown==2.6.8
 psycopg2==2.6.2
 py-moneyed==0.6.0
+pytz==2018.3

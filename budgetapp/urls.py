@@ -16,9 +16,15 @@ router.register(r'budgetcategorygroups', views.BudgetCategoryGroupViewSet)
 router.register(r'transactions', views.TransactionViewSet)
 
 urlpatterns = [
-	url(r'^users/$', views.UserListView.as_view(), name='user-list'),
-	url(r'^users/register/$', views.UserCreateView.as_view(), name='user-create'),
-	url(r'^users/get-auth-token/$', rest_framework_views.obtain_auth_token, 'get_auth_token'),
-	url(r'^users/(?P<pk>[0-9]+)/$', views.UserRetrieveUpdateDestroyView.as_view(), name='user-detail'),
-	url(r'^', include(router.urls)),
+    url(r'^users/$', views.UserListView.as_view(), name='user-list'),
+    url(r'^users/register/$', 
+        views.UserCreateView.as_view(),
+        name='user-create'),
+    url(r'^users/get-auth-token/$',
+        rest_framework_views.obtain_auth_token,
+        'get_auth_token'),
+    url(r'^users/(?P<pk>[0-9]+)/$',
+        views.UserRetrieveUpdateDestroyView.as_view(),
+        name='user-detail'),
+    url(r'^', include(router.urls)),
 ]

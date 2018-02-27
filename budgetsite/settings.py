@@ -49,7 +49,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # This should be as close to the top as possible
+    # This should be as close to the top as possible
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,10 +87,10 @@ WSGI_APPLICATION = 'budgetsite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'budget',                      
-        'USER': 'budgetdb_user',
-        'PASSWORD': 'Budg3tdbU$3r95',
-        'HOST': '192.168.1.201',
+        'NAME': 'budgetapp',                      
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }

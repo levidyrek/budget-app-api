@@ -72,7 +72,8 @@ class BudgetTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
@@ -80,7 +81,8 @@ class BudgetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -135,7 +137,8 @@ class CategoryTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
@@ -143,7 +146,8 @@ class CategoryTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -156,7 +160,8 @@ class CategoryBudgetGroupTests(BaseTestCase):
         # Test budget
         BudgetTests.setup_test_models(client)
         response = auth_util.create_test_model(client, auth_util.BUDGET_NAME)
-        auth_util.post_data[auth_util.CATEGORYBUDGETGROUP_NAME]['budget'] = response.data['url']
+        auth_util.post_data[auth_util.CATEGORYBUDGETGROUP_NAME]['budget'] = \
+            response.data['url']
 
     # --------- No authentication tests --------- #
 
@@ -205,7 +210,8 @@ class CategoryBudgetGroupTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
@@ -213,7 +219,8 @@ class CategoryBudgetGroupTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -226,12 +233,15 @@ class CategoryBudgetTests(BaseTestCase):
         # Category
         CategoryTests.setup_test_models(client)
         response = auth_util.create_test_model(client, auth_util.CATEGORY_NAME)
-        auth_util.post_data[auth_util.CATEGORYBUDGET_NAME]['category'] = response.data['url']
+        auth_util.post_data[auth_util.CATEGORYBUDGET_NAME]['category'] = \
+            response.data['url']
 
         # CategoryBudgetGroup
         CategoryBudgetGroupTests.setup_test_models(client)
-        response = auth_util.create_test_model(client, auth_util.CATEGORYBUDGETGROUP_NAME)
-        auth_util.post_data[auth_util.CATEGORYBUDGET_NAME]['group'] = response.data['url']
+        response = auth_util.create_test_model(
+            client, auth_util.CATEGORYBUDGETGROUP_NAME)
+        auth_util.post_data[auth_util.CATEGORYBUDGET_NAME]['group'] = \
+            response.data['url']
 
     # ------ No authentication tests -------- #
 
@@ -280,7 +290,8 @@ class CategoryBudgetTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
@@ -288,7 +299,8 @@ class CategoryBudgetTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -300,8 +312,10 @@ class TransactionTests(BaseTestCase):
     def setup_test_models(client):
         # Category Budget
         CategoryBudgetTests.setup_test_models(client)
-        response = auth_util.create_test_model(client, auth_util.CATEGORYBUDGET_NAME)
-        auth_util.post_data[auth_util.TRANSACTION_NAME]['category_budget'] = response.data['url']
+        response = auth_util.create_test_model(
+            client, auth_util.CATEGORYBUDGET_NAME)
+        auth_util.post_data[auth_util.TRANSACTION_NAME]['category_budget'] = \
+            response.data['url']
 
     # -------- No authentication tests -------- #
 
@@ -350,15 +364,18 @@ class TransactionTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
-        response = auth_util.put_cross_user_test(self.client, self.model_name)
+        response = auth_util.put_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -371,7 +388,8 @@ class IncomeTests(BaseTestCase):
         # Budget
         BudgetTests.setup_test_models(client)
         response = auth_util.create_test_model(client, auth_util.BUDGET_NAME)
-        auth_util.post_data[auth_util.INCOME_NAME]['budget'] = response.data['url']
+        auth_util.post_data[auth_util.INCOME_NAME]['budget'] = \
+            response.data['url']
 
     # -------- No authentication tests -------- #
 
@@ -420,15 +438,18 @@ class IncomeTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
-        response = auth_util.put_cross_user_test(self.client, self.model_name)
+        response = auth_util.put_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -483,15 +504,18 @@ class LongTermGoalTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
-        response = auth_util.put_cross_user_test(self.client, self.model_name)
+        response = auth_util.put_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -503,13 +527,16 @@ class BudgetGoalTests(BaseTestCase):
     def setup_test_models(client):
         # Long Term Goal
         LongTermGoalTests.setup_test_models(client)
-        response = auth_util.create_test_model(client, auth_util.LONGTERMGOAL_NAME)
-        auth_util.post_data[auth_util.BUDGETGOAL_NAME]['long_term_goal'] = response.data['url']
+        response = auth_util.create_test_model(
+            client, auth_util.LONGTERMGOAL_NAME)
+        auth_util.post_data[auth_util.BUDGETGOAL_NAME]['long_term_goal'] = \
+            response.data['url']
 
         # Budget
         BudgetTests.setup_test_models(client)
         response = auth_util.create_test_model(client, auth_util.BUDGET_NAME)
-        auth_util.post_data[auth_util.BUDGETGOAL_NAME]['budget'] = response.data['url']
+        auth_util.post_data[auth_util.BUDGETGOAL_NAME]['budget'] = \
+            response.data['url']
 
     # -------- No authentication tests -------- #
 
@@ -558,7 +585,8 @@ class BudgetGoalTests(BaseTestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        response = auth_util.detail_cross_user_test(self.client, self.model_name)
+        response = auth_util.detail_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_cross_user(self):
@@ -566,7 +594,8 @@ class BudgetGoalTests(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_cross_user(self):
-        response = auth_util.delete_cross_user_test(self.client, self.model_name)
+        response = auth_util.delete_cross_user_test(
+            self.client, self.model_name)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -579,13 +608,19 @@ class UserTests(BaseTestCase):
     def setUp(self):
         super(UserTests, self).setUp()
 
-        test_pk = User.objects.get(username=auth_util.test_users[0]['username']).pk
+        test_pk = User.objects.get(
+            username=auth_util.test_users[0]['username']
+        ).pk
         self.detail_url = reverse(app_name + ':' + self.model_name + '-detail',
                                   args=[test_pk])
 
-        test_pk = User.objects.get(username=auth_util.test_users[1]['username']).pk
-        self.detail_url2 = reverse(app_name + ':' + self.model_name + '-detail',
-                                  args=[test_pk])
+        test_pk = User.objects.get(
+            username=auth_util.test_users[1]['username']
+        ).pk
+        self.detail_url2 = reverse(
+            app_name + ':' + self.model_name + '-detail',
+            args=[test_pk]
+        )
 
     # -------- No authentication tests -------- #
 
@@ -599,10 +634,12 @@ class UserTests(BaseTestCase):
 
     def test_post_no_auth(self):
         """
-        Note: Should succeed without authentication 
+        Note: Should succeed without authentication
         """
         url = app_name + ':' + self.model_name + '-create'
-        response = self.client.post(reverse(url), auth_util.post_data[self.model_name])
+        response = self.client.post(
+            reverse(url), auth_util.post_data[self.model_name]
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_put_no_auth(self):
@@ -631,13 +668,15 @@ class UserTests(BaseTestCase):
     def test_post_auth(self):
         auth_util.login_test_user(self.client)
         url = app_name + ':' + self.model_name + '-create'
-        response = self.client.post(reverse(url), auth_util.post_data[self.model_name])
+        response = self.client.post(
+            reverse(url), auth_util.post_data[self.model_name])
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_put_auth(self):
         auth_util.login_test_user(self.client)
-        response = self.client.put(self.detail_url, auth_util.post_data[auth_util.USER_NAME])
+        response = self.client.put(
+            self.detail_url, auth_util.post_data[auth_util.USER_NAME])
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -657,7 +696,8 @@ class UserTests(BaseTestCase):
 
     def test_put_cross_user(self):
         auth_util.login_test_user(self.client, 0)
-        response = self.client.put(self.detail_url2, auth_util.post_data[auth_util.USER_NAME])
+        response = self.client.put(
+            self.detail_url2, auth_util.post_data[auth_util.USER_NAME])
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
