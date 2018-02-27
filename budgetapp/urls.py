@@ -17,7 +17,7 @@ router.register(r'transactions', views.TransactionViewSet)
 
 urlpatterns = [
     url(r'^users/$', views.UserListView.as_view(), name='user-list'),
-    url(r'^users/register/$', 
+    url(r'^users/register/$',
         views.UserCreateView.as_view(),
         name='user-create'),
     url(r'^users/get-auth-token/$',
