@@ -3,43 +3,7 @@ from django.db import models
 from datetime import date, datetime
 
 
-class OwnedModel(models.Model):
-    """
-    Contains necessary fields and methods for models that are owned.
-    """
-
-    # Should be given a value in subclass with proper related_name
-    owner = None
-
-    def has_owner_conflict(self, user):
-        """
-        Checks to see if there is a conflict of owners based on owner param.
-        Returns false if owner is not set
-        :param user: The user to check against
-        :return: True if there is a conflict, False otherwise
-        """
-        username = user.username
-
-        # Check self
-        try:
-            if self.owner.username != username:
-                return True
-        except NameError:
-            print("Owner is not set")
-
-        # Check relationships
-        for field in self._meta.get_fields():
-            if isinstance(field, OwnedModel) and \
-               field.has_owner_conflict(user):
-                return True
-
-        return False
-
-    class Meta:
-        abstract = True
-
-
-class Budget(OwnedModel):
+class Budget(models.Model):
     related_name = 'budgets'
 
     MONTH_CHOICES = (
@@ -84,24 +48,22 @@ class Budget(OwnedModel):
                ' Budget'
 
 
-class BudgetCategoryGroup(OwnedModel):
+class BudgetCategoryGroup(models.Model):
     related_name = 'budget_category_groups'
-    owner = models.ForeignKey('auth.User', related_name=related_name)
     name = models.CharField(max_length=100)
     budget = models.ForeignKey(Budget,
                                on_delete=models.CASCADE,
                                related_name=related_name)
 
     class Meta:
-        unique_together = ('owner', 'name', 'budget')
+        unique_together = ('name', 'budget',)
 
     def __str__(self):
-        return self.name + ' [owner=' + self.owner.username + ']'
+        return self.name + ' [owner=' + self.budget.owner.username + ']'
 
 
-class BudgetCategory(OwnedModel):
+class BudgetCategory(models.Model):
     related_name = 'budget_categories'
-    owner = models.ForeignKey('auth.User', related_name=related_name)
     category = models.CharField(max_length=100)
     group = models.ForeignKey(BudgetCategoryGroup,
                               on_delete=models.CASCADE,
@@ -116,7 +78,7 @@ class BudgetCategory(OwnedModel):
                        default_currency='USD')
 
     class Meta:
-        unique_together = ('owner', 'category', 'group',)
+        unique_together = ('category', 'group',)
 
     def get_money_left(self):
         return self.limit - self.spent
@@ -125,12 +87,11 @@ class BudgetCategory(OwnedModel):
         return str(self.category) + ' ' + \
                self.group.budget.month + ' ' + \
                str(self.group.budget.year) + \
-               ' [owner=' + self.owner.username + ']'
+               ' [owner=' + self.group.budget.owner.username + ']'
 
 
-class Transaction(OwnedModel):
+class Transaction(models.Model):
     related_name = 'transactions'
-    owner = models.ForeignKey('auth.User', related_name=related_name)
     amount = MoneyField(max_digits=10,
                         decimal_places=2,
                         default_currency='USD')
@@ -144,12 +105,12 @@ class Transaction(OwnedModel):
         return str(self.amount) + ' ' \
                + self.recipient + ' ' \
                + str(self.budget_category) + ' ' \
-               + str(self.date)
+               + str(self.date) + ' ' \
+               + self.budget_category.group.budget.owner.username
 
 
-class Income(OwnedModel):
+class Income(models.Model):
     related_name = 'incomes'
-    owner = models.ForeignKey('auth.User', related_name=related_name)
     name = models.CharField(max_length=100)
     amount = MoneyField(max_digits=10,
                         decimal_places=2,
@@ -159,10 +120,11 @@ class Income(OwnedModel):
                                related_name=related_name)
 
     def __str__(self):
-        return self.name + ': ' + str(self.amount)
+        return self.name + ': ' + str(self.amount) + ' - ' + \
+               self.budget.owner.username
 
 
-class Goal(OwnedModel):
+class Goal(models.Model):
     name = models.CharField(max_length=100)
     goal_amount = MoneyField(max_digits=10,
                              decimal_places=2,
@@ -193,7 +155,6 @@ class LongTermGoal(Goal):
 
 class BudgetGoal(Goal):
     related_name = 'budget_goals'
-    owner = models.ForeignKey('auth.User', related_name=related_name)
     budget = models.ForeignKey(Budget,
                                on_delete=models.CASCADE,
                                related_name=related_name)
@@ -203,4 +164,4 @@ class BudgetGoal(Goal):
                                        related_name=related_name)
 
     class Meta:
-        unique_together = ('owner', 'budget', 'long_term_goal',)
+        unique_together = ('budget', 'long_term_goal',)

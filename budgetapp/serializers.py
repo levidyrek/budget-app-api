@@ -88,7 +88,6 @@ class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
 class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetgoal-detail')
-    owner = owner_field
     budget = budget_field
     long_term_goal = serializers.HyperlinkedRelatedField(
         queryset=LongTermGoal.objects.all(),
@@ -97,30 +96,28 @@ class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetGoal
-        fields = ('url', 'owner', 'name', 'goal_amount', 'progress', 'budget',
+        fields = ('url', 'name', 'goal_amount', 'progress', 'budget',
                   'long_term_goal')
 
 
 class IncomeSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:income-detail')
-    owner = owner_field
     budget = budget_field
 
     class Meta:
         model = Income
-        fields = ('url', 'owner', 'name', 'amount', 'budget')
+        fields = ('url', 'name', 'amount', 'budget')
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:transaction-detail')
-    owner = owner_field
     budget_category = budget_category_field
 
     class Meta:
         model = Transaction
-        fields = ('pk', 'url', 'owner', 'amount', 'recipient',
+        fields = ('pk', 'url', 'amount', 'recipient',
                   'budget_category', 'date')
         list_serializer_class = PkDictSerializer
 
@@ -128,7 +125,6 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategory-detail')
-    owner = owner_field
     group = serializers.PrimaryKeyRelatedField(
         queryset=BudgetCategoryGroup.objects.all()
     )
@@ -139,7 +135,7 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetCategory
-        fields = ('url', 'pk', 'owner', 'category', 'group', 'limit', 'spent',
+        fields = ('url', 'pk', 'category', 'group', 'limit', 'spent',
                   'transactions',)
         list_serializer_class = PkDictSerializer
 
@@ -147,7 +143,6 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategorygroup-detail')
-    owner = owner_field
     budget = serializers.HyperlinkedRelatedField(
         queryset=Budget.objects.all(),
         view_name='budgetapp:budget-detail'
@@ -159,7 +154,7 @@ class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetCategoryGroup
-        fields = ('url', 'pk', 'owner', 'name', 'budget', 'budget_categories',)
+        fields = ('url', 'pk', 'name', 'budget', 'budget_categories',)
         list_serializer_class = PkDictSerializer
 
 

@@ -8,20 +8,20 @@ class BudgetAdmin(admin.ModelAdmin):
 
 
 class BudgetCategoryGroupAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'name', 'budget')
+    list_display = ('name', 'budget')
 
 
 class BudgetCategoryAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'category', 'group')
+    list_display = ('category', 'group')
 
 
 class BudgetGoalAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'budget', 'long_term_goal', 'goal_amount',
+    list_display = ('budget', 'long_term_goal', 'goal_amount',
                     'progress',)
 
 
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'budget', 'name', 'amount',)
+    list_display = ('budget', 'name', 'amount',)
 
 
 class LongTermGoalAdmin(admin.ModelAdmin):
@@ -29,7 +29,7 @@ class LongTermGoalAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'amount', 'recipient', 'budget_category', 'date',)
+    list_display = ('amount', 'recipient', 'budget_category', 'date',)
 
 
 admin.site.register(Budget, BudgetAdmin)

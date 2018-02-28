@@ -1,58 +1,20 @@
 from django.contrib.auth.models import User
-from rest_framework import permissions
-from rest_framework import viewsets, generics
-from .models import (Budget, BudgetCategoryGroup, BudgetCategory,
-                     Transaction, Income, LongTermGoal, BudgetGoal, OwnedModel)
-from .permissions import IsOwnerOrAdmin
-from .serializers import (BudgetDetailSerializer, BudgetListSerializer,
-                          BudgetCategoryGroupSerializer,
-                          BudgetCategorySerializer, TransactionSerializer,
+from rest_framework import generics, permissions, viewsets
+
+from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
+                     Income, LongTermGoal, Transaction)
+from .permissions import (BudgetCategoryGroupPermission,
+                          BudgetCategoryPermission, BudgetGoalPermission,
+                          IncomePermission, IsOwnerOrAdmin,
+                          TransactionPermission)
+from .serializers import (BudgetCategoryGroupSerializer,
+                          BudgetCategorySerializer, BudgetDetailSerializer,
+                          BudgetGoalSerializer, BudgetListSerializer,
                           IncomeSerializer, LongTermGoalSerializer,
-                          BudgetGoalSerializer, UserSerializer)
-from rest_framework.exceptions import APIException
+                          TransactionSerializer, UserSerializer)
 
 
-def check_for_owner_conflict(viewset, data):
-    """
-    Static method that checks for owner conflicts
-    """
-
-    # Get all owned models
-    owned_items = list()
-    for item in data.items():
-        if isinstance(item, tuple):
-            obj = item[1]
-            if isinstance(obj, OwnedModel):
-                owned_items.append(obj)
-            elif isinstance(obj, list):
-                for list_item in obj:
-                    if isinstance(list_item, OwnedModel):
-                        owned_items.append(list_item)
-
-    # Check if any of the owned items have owner conflicts
-    for owned_model in owned_items:
-        if owned_model.has_owner_conflict(viewset.request.user):
-            raise OwnerConflictException
-
-
-class OwnedModelViewSet(viewsets.ModelViewSet):
-    """
-    Provides methods to validate ownership
-    """
-
-    def check_for_owner_conflict(self, data):
-        check_for_owner_conflict(self, data)
-
-    def perform_create(self, serializer):
-        self.check_for_owner_conflict(serializer.validated_data)
-        serializer.save(owner=self.request.user)
-
-    def perform_update(self, serializer):
-        self.check_for_owner_conflict(serializer.validated_data)
-        serializer.save()
-
-
-class BudgetViewSet(OwnedModelViewSet):
+class BudgetViewSet(viewsets.ModelViewSet):
     queryset = Budget.objects.all()
     serializer_class = BudgetDetailSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
@@ -67,7 +29,50 @@ class BudgetViewSet(OwnedModelViewSet):
         return Budget.objects.filter(owner=self.request.user)
 
 
-class LongTermGoalViewSet(OwnedModelViewSet):
+class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):
+    queryset = BudgetCategoryGroup.objects.all()
+    serializer_class = BudgetCategoryGroupSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          BudgetCategoryGroupPermission)
+
+    def get_queryset(self):
+        return BudgetCategoryGroup.objects.filter(
+            budget__owner=self.request.user)
+
+
+class BudgetCategoryViewSet(viewsets.ModelViewSet):
+    queryset = BudgetCategory.objects.all()
+    serializer_class = BudgetCategorySerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          BudgetCategoryPermission)
+
+    def get_queryset(self):
+        return BudgetCategory.objects.filter(
+            group__budget__owner=self.request.user)
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          TransactionPermission)
+
+    def get_queryset(self):
+        return Transaction.objects.filter(
+            budget_category__group__budget__owner=self.request.user)
+
+
+class IncomeViewSet(viewsets.ModelViewSet):
+    queryset = Income.objects.all()
+    serializer_class = IncomeSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          IncomePermission)
+
+    def get_queryset(self):
+        return Income.objects.filter(budget__owner=self.request.user)
+
+
+class LongTermGoalViewSet(viewsets.ModelViewSet):
     queryset = LongTermGoal.objects.all()
     serializer_class = LongTermGoalSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
@@ -76,49 +81,14 @@ class LongTermGoalViewSet(OwnedModelViewSet):
         return LongTermGoal.objects.filter(owner=self.request.user)
 
 
-class BudgetCategoryViewSet(OwnedModelViewSet):
-    queryset = BudgetCategory.objects.all()
-    serializer_class = BudgetCategorySerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return BudgetCategory.objects.filter(owner=self.request.user)
-
-
-class IncomeViewSet(OwnedModelViewSet):
-    queryset = Income.objects.all()
-    serializer_class = IncomeSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return Income.objects.filter(owner=self.request.user)
-
-
-class BudgetCategoryGroupViewSet(OwnedModelViewSet):
-    queryset = BudgetCategoryGroup.objects.all()
-    serializer_class = BudgetCategoryGroupSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return BudgetCategoryGroup.objects.filter(owner=self.request.user)
-
-
-class TransactionViewSet(OwnedModelViewSet):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return Transaction.objects.filter(owner=self.request.user)
-
-
-class BudgetGoalViewSet(OwnedModelViewSet):
+class BudgetGoalViewSet(viewsets.ModelViewSet):
     queryset = BudgetGoal.objects.all()
     serializer_class = BudgetGoalSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
+    permission_classes = (permissions.IsAuthenticated,
+                          BudgetGoalPermission)
 
     def get_queryset(self):
-        return BudgetGoal.objects.filter(owner=self.request.user)
+        return BudgetGoal.objects.filter(budget__owner=self.request.user)
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -130,10 +100,6 @@ class UserCreateView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.AllowAny,)
 
-    def perform_create(self, serializer):
-        check_for_owner_conflict(self, serializer.validated_data)
-        serializer.save()
-
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -144,10 +110,6 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin,)
 
-    def perform_update(self, serializer):
-        check_for_owner_conflict(self, serializer.validated_data)
-        serializer.save()
-
 
 class UserListView(generics.ListAPIView):
     """
@@ -156,12 +118,3 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAdminUser,)
-
-
-""" API Exceptions """
-
-
-class OwnerConflictException(APIException):
-    status_code = 403
-    default_detail = 'Conflict of owners within object'
-    default_code = 'owner_conflict'
