@@ -8,22 +8,16 @@ from .permissions import (BudgetCategoryGroupPermission,
                           IncomePermission, IsOwnerOrAdmin,
                           TransactionPermission)
 from .serializers import (BudgetCategoryGroupSerializer,
-                          BudgetCategorySerializer, BudgetDetailSerializer,
-                          BudgetGoalSerializer, BudgetListSerializer,
+                          BudgetCategorySerializer, BudgetSerializer,
+                          BudgetGoalSerializer,
                           IncomeSerializer, LongTermGoalSerializer,
                           TransactionSerializer, UserSerializer)
 
 
 class BudgetViewSet(viewsets.ModelViewSet):
     queryset = Budget.objects.all()
-    serializer_class = BudgetDetailSerializer
+    serializer_class = BudgetSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return BudgetListSerializer
-        else:
-            return BudgetDetailSerializer
 
     def get_queryset(self):
         return Budget.objects.filter(owner=self.request.user)
