@@ -1,4 +1,3 @@
-from djmoney.models.fields import MoneyField
 from django.db import models
 from datetime import date, datetime
 
@@ -68,14 +67,12 @@ class BudgetCategory(models.Model):
     group = models.ForeignKey(BudgetCategoryGroup,
                               on_delete=models.CASCADE,
                               related_name=related_name)
-    limit = MoneyField(max_digits=10,
-                       decimal_places=2,
-                       default=0,
-                       default_currency='USD')
-    spent = MoneyField(max_digits=10,
-                       decimal_places=2,
-                       default=0,
-                       default_currency='USD')
+    limit = models.DecimalField(max_digits=10,
+                                decimal_places=2,
+                                default=0)
+    spent = models.DecimalField(max_digits=10,
+                                decimal_places=2,
+                                default=0)
 
     class Meta:
         unique_together = ('category', 'group',)
@@ -92,9 +89,8 @@ class BudgetCategory(models.Model):
 
 class Transaction(models.Model):
     related_name = 'transactions'
-    amount = MoneyField(max_digits=10,
-                        decimal_places=2,
-                        default_currency='USD')
+    amount = models.DecimalField(max_digits=10,
+                                 decimal_places=2)
     recipient = models.CharField(max_length=100)
     budget_category = models.ForeignKey(BudgetCategory,
                                         on_delete=models.CASCADE,
@@ -112,9 +108,8 @@ class Transaction(models.Model):
 class Income(models.Model):
     related_name = 'incomes'
     name = models.CharField(max_length=100)
-    amount = MoneyField(max_digits=10,
-                        decimal_places=2,
-                        default_currency='USD')
+    amount = models.DecimalField(max_digits=10,
+                                 decimal_places=2)
     budget = models.ForeignKey(Budget,
                                on_delete=models.CASCADE,
                                related_name=related_name)
@@ -126,13 +121,11 @@ class Income(models.Model):
 
 class Goal(models.Model):
     name = models.CharField(max_length=100)
-    goal_amount = MoneyField(max_digits=10,
-                             decimal_places=2,
-                             default_currency='USD')
-    progress = MoneyField(max_digits=10,
-                          decimal_places=2,
-                          default=0,
-                          default_currency='USD')
+    goal_amount = models.DecimalField(max_digits=10,
+                                      decimal_places=2)
+    progress = models.DecimalField(max_digits=10,
+                                   decimal_places=2,
+                                   default=0)
 
     def is_met(self):
         return self.progress >= self.goal_amount

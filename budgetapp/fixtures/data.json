@@ -29,9 +29,7 @@
         "fields": {
             "category": "Rent",
             "group": 2,
-            "limit_currency": "USD",
             "limit": "1200.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -41,9 +39,7 @@
         "fields": {
             "category": "Electricity",
             "group": 2,
-            "limit_currency": "USD",
             "limit": "110.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -53,9 +49,7 @@
         "fields": {
             "category": "Groceries",
             "group": 1,
-            "limit_currency": "USD",
             "limit": "500.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -65,9 +59,7 @@
         "fields": {
             "category": "Gas",
             "group": 1,
-            "limit_currency": "USD",
             "limit": "150.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -77,9 +69,7 @@
         "fields": {
             "category": "Shopping",
             "group": 3,
-            "limit_currency": "USD",
             "limit": "100.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -89,9 +79,7 @@
         "fields": {
             "category": "Entertainment",
             "group": 3,
-            "limit_currency": "USD",
             "limit": "100.00",
-            "spent_currency": "USD",
             "spent": "0.00"
         }
     },
@@ -99,7 +87,6 @@
         "model": "budgetapp.transaction",
         "pk": 1,
         "fields": {
-            "amount_currency": "USD",
             "amount": "75.00",
             "recipient": "Walmart",
             "budget_category": 3,
@@ -110,7 +97,6 @@
         "model": "budgetapp.transaction",
         "pk": 2,
         "fields": {
-            "amount_currency": "USD",
             "amount": "1200.00",
             "recipient": "Mr. Landlord",
             "budget_category": 1,
@@ -121,7 +107,6 @@
         "model": "budgetapp.transaction",
         "pk": 3,
         "fields": {
-            "amount_currency": "USD",
             "amount": "25.00",
             "recipient": "Shell",
             "budget_category": 4,
@@ -132,7 +117,6 @@
         "model": "budgetapp.transaction",
         "pk": 4,
         "fields": {
-            "amount_currency": "USD",
             "amount": "59.99",
             "recipient": "Nintendo E-Shop",
             "budget_category": 6,
@@ -144,7 +128,6 @@
         "pk": 1,
         "fields": {
             "name": "Paycheck 1",
-            "amount_currency": "USD",
             "amount": "1500.00",
             "budget": 1
         }
@@ -154,7 +137,6 @@
         "pk": 2,
         "fields": {
             "name": "Paycheck 2",
-            "amount_currency": "USD",
             "amount": "1500.00",
             "budget": 1
         }
@@ -164,7 +146,6 @@
         "pk": 3,
         "fields": {
             "name": "Bonus",
-            "amount_currency": "USD",
             "amount": "200.00",
             "budget": 1
         }
@@ -174,9 +155,7 @@
         "pk": 1,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 1,
             "long_term_goal": 1
@@ -187,9 +166,7 @@
         "pk": 2,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 2,
             "long_term_goal": 1
@@ -200,9 +177,7 @@
         "pk": 3,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 3,
             "long_term_goal": 1
@@ -213,9 +188,7 @@
         "pk": 4,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 4,
             "long_term_goal": 1
@@ -226,9 +199,7 @@
         "pk": 5,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 5,
             "long_term_goal": 1
@@ -239,9 +210,7 @@
         "pk": 6,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "112.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "budget": 6,
             "long_term_goal": 1
@@ -814,9 +783,7 @@
         "pk": 1,
         "fields": {
             "name": "Vacation Fund",
-            "goal_amount_currency": "USD",
             "goal_amount": "1000.00",
-            "progress_currency": "USD",
             "progress": "0.00",
             "due_date": "2018-08-11",
             "owner": 2

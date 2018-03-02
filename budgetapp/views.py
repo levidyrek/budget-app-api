@@ -18,6 +18,7 @@ class BudgetViewSet(viewsets.ModelViewSet):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
+    filter_fields = ('month', 'year',)
 
     def get_queryset(self):
         return Budget.objects.filter(owner=self.request.user)
