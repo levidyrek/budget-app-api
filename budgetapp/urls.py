@@ -1,7 +1,6 @@
 from django.conf.urls import url, include
 from . import views
 from rest_framework.routers import DefaultRouter
-from rest_framework.authtoken import views as rest_framework_views
 
 app_name = 'budgetapp'
 
@@ -21,7 +20,7 @@ urlpatterns = [
         views.UserCreateView.as_view(),
         name='user-create'),
     url(r'^users/obtain-auth-token/$',
-        rest_framework_views.obtain_auth_token,
+        views.ObtainAuthTokenCookieView.as_view(),
         name='obtain-auth-token'),
     url(r'^users/(?P<pk>[0-9]+)/$',
         views.UserRetrieveUpdateDestroyView.as_view(),

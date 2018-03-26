@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
 
 from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
                      Income, LongTermGoal, Transaction)
@@ -8,10 +11,10 @@ from .permissions import (BudgetCategoryGroupPermission,
                           IncomePermission, IsOwnerOrAdmin,
                           TransactionPermission)
 from .serializers import (BudgetCategoryGroupSerializer,
-                          BudgetCategorySerializer, BudgetSerializer,
-                          BudgetGoalSerializer,
-                          IncomeSerializer, LongTermGoalSerializer,
-                          TransactionSerializer, UserSerializer)
+                          BudgetCategorySerializer, BudgetGoalSerializer,
+                          BudgetSerializer, IncomeSerializer,
+                          LongTermGoalSerializer, TransactionSerializer,
+                          UserSerializer)
 
 
 class BudgetViewSet(viewsets.ModelViewSet):
@@ -113,3 +116,26 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAdminUser,)
+
+
+class ObtainAuthTokenCookieView(ObtainAuthToken):
+    """
+    Custom auth token view that returns the token in a response,
+    and also saves the token as an HTTP-only cookie on the client.
+    """
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        response = Response({'token': token.key})
+        response.set_cookie(
+            'Token',
+            token.key,
+            max_age=60*60*24*14,  # Two weeks.
+            domain='localhost',
+            httponly=True
+        )
+        return response
