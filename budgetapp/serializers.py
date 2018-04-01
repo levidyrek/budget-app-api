@@ -168,23 +168,10 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='budgetapp:user-detail')
-    budgets = serializers.HyperlinkedRelatedField(
-        view_name='budgetapp:budget-detail',
-        many=True,
-        read_only=True
-    )
-    long_term_goals = serializers.HyperlinkedRelatedField(
-        view_name='budgetapp:longtermgoal-detail',
-        many=True,
-        read_only=True
-    )
 
     class Meta:
         model = User
-        fields = ('url', 'email', 'username', 'password',
-                  'budgets', 'long_term_goals',)
+        fields = ('id', 'email', 'username', 'password',)
         extra_kwargs = {
             'password': {'write_only': True}
         }

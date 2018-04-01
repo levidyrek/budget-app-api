@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # This should be as close to the top as possible
     'corsheaders.middleware.CorsMiddleware',
+    'budgetsite.middleware.cookie_token_middleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -137,8 +138,8 @@ STATIC_URL = '/static/'
 # Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'budgetsite.auth.TokenCookieAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'

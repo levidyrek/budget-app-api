@@ -3,6 +3,7 @@ from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
                      Income, LongTermGoal, Transaction)
@@ -139,3 +140,11 @@ class ObtainAuthTokenCookieView(ObtainAuthToken):
             httponly=True
         )
         return response
+
+
+class UserDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        serializer = UserSerializer(request.user, context={'request': request})
+        return Response(serializer.data)

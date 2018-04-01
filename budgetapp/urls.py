@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^users/(?P<pk>[0-9]+)/$',
         views.UserRetrieveUpdateDestroyView.as_view(),
         name='user-detail'),
+    url(r'^user-info/$', views.UserDetailView.as_view(), name='user-info'),
     url(r'^', include(router.urls)),
 ]
