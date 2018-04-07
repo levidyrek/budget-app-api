@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -148,3 +149,18 @@ class UserDetailView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+
+
+def logout(request):
+    """
+    Sets an expired cookie on the client, logging the user out.
+    """
+    response = HttpResponse()
+    response.set_cookie(
+        key='Token',
+        value='logout',
+        max_age=0,
+        expires='Wed, 21 Oct 1900 07:28:00 GMT',
+        httponly=True
+    )
+    return response

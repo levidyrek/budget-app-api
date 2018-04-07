@@ -15,6 +15,7 @@ router.register(r'budgetcategorygroups', views.BudgetCategoryGroupViewSet)
 router.register(r'transactions', views.TransactionViewSet)
 
 urlpatterns = [
+    url(r'^logout/$', views.logout, name='logout'),
     url(r'^users/$', views.UserListView.as_view(), name='user-list'),
     url(r'^users/register/$',
         views.UserCreateView.as_view(),
