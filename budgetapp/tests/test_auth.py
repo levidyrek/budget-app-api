@@ -1,9 +1,9 @@
-from rest_framework.test import APITestCase
+from budgetapp.tests.utils import auth_util
+from budgetapp.urls import app_name
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from budgetapp.urls import app_name
-from budgetapp.tests.utils import auth_util
+from rest_framework.test import APITestCase
 
 
 class BaseTestCase(APITestCase):

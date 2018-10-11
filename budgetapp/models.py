@@ -1,5 +1,6 @@
-from django.db import models
 from datetime import date, datetime
+
+from django.db import models
 
 
 class Budget(models.Model):
@@ -33,7 +34,9 @@ class Budget(models.Model):
         choices=YEAR_CHOICES,
         default=datetime.now().year
     )
-    owner = models.ForeignKey('auth.User', related_name=related_name)
+    owner = models.ForeignKey(
+        'auth.User', related_name=related_name, on_delete=models.CASCADE
+    )
 
     class Meta:
         unique_together = ('owner', 'month', 'year')
@@ -50,9 +53,9 @@ class Budget(models.Model):
 class BudgetCategoryGroup(models.Model):
     related_name = 'budget_category_groups'
     name = models.CharField(max_length=100)
-    budget = models.ForeignKey(Budget,
-                               on_delete=models.CASCADE,
-                               related_name=related_name)
+    budget = models.ForeignKey(
+        Budget, on_delete=models.CASCADE, related_name=related_name
+    )
 
     class Meta:
         unique_together = ('name', 'budget',)
@@ -64,15 +67,17 @@ class BudgetCategoryGroup(models.Model):
 class BudgetCategory(models.Model):
     related_name = 'budget_categories'
     category = models.CharField(max_length=100)
-    group = models.ForeignKey(BudgetCategoryGroup,
-                              on_delete=models.CASCADE,
-                              related_name=related_name)
-    limit = models.DecimalField(max_digits=10,
-                                decimal_places=2,
-                                default=0)
-    spent = models.DecimalField(max_digits=10,
-                                decimal_places=2,
-                                default=0)
+    group = models.ForeignKey(
+        BudgetCategoryGroup,
+        on_delete=models.CASCADE,
+        related_name=related_name
+    )
+    limit = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0
+    )
+    spent = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0
+    )
 
     class Meta:
         unique_together = ('category', 'group',)
@@ -89,12 +94,13 @@ class BudgetCategory(models.Model):
 
 class Transaction(models.Model):
     related_name = 'transactions'
-    amount = models.DecimalField(max_digits=10,
-                                 decimal_places=2)
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2
+    )
     recipient = models.CharField(max_length=100)
-    budget_category = models.ForeignKey(BudgetCategory,
-                                        on_delete=models.CASCADE,
-                                        related_name=related_name)
+    budget_category = models.ForeignKey(
+        BudgetCategory, on_delete=models.CASCADE, related_name=related_name
+    )
     date = models.DateField()
 
     def __str__(self):
@@ -108,11 +114,12 @@ class Transaction(models.Model):
 class Income(models.Model):
     related_name = 'incomes'
     name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10,
-                                 decimal_places=2)
-    budget = models.ForeignKey(Budget,
-                               on_delete=models.CASCADE,
-                               related_name=related_name)
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2
+    )
+    budget = models.ForeignKey(
+        Budget, on_delete=models.CASCADE, related_name=related_name
+    )
 
     def __str__(self):
         return self.name + ': ' + str(self.amount) + ' - ' + \
@@ -121,11 +128,12 @@ class Income(models.Model):
 
 class Goal(models.Model):
     name = models.CharField(max_length=100)
-    goal_amount = models.DecimalField(max_digits=10,
-                                      decimal_places=2)
-    progress = models.DecimalField(max_digits=10,
-                                   decimal_places=2,
-                                   default=0)
+    goal_amount = models.DecimalField(
+        max_digits=10, decimal_places=2
+    )
+    progress = models.DecimalField(
+        max_digits=10, decimal_places=2,  default=0
+    )
 
     def is_met(self):
         return self.progress >= self.goal_amount
@@ -140,7 +148,9 @@ class Goal(models.Model):
 class LongTermGoal(Goal):
     related_name = 'long_term_goals'
     due_date = models.DateField()
-    owner = models.ForeignKey('auth.User', related_name=related_name)
+    owner = models.ForeignKey(
+        'auth.User', related_name=related_name, on_delete=models.CASCADE
+    )
 
     def is_past_due(self):
         return date.today() > self.due_date
@@ -148,13 +158,17 @@ class LongTermGoal(Goal):
 
 class BudgetGoal(Goal):
     related_name = 'budget_goals'
-    budget = models.ForeignKey(Budget,
-                               on_delete=models.CASCADE,
-                               related_name=related_name)
-    long_term_goal = models.ForeignKey(LongTermGoal,
-                                       on_delete=models.CASCADE,
-                                       null=True,
-                                       related_name=related_name)
+    budget = models.ForeignKey(
+        Budget,
+        on_delete=models.CASCADE,
+        related_name=related_name
+    )
+    long_term_goal = models.ForeignKey(
+        LongTermGoal,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name=related_name
+    )
 
     class Meta:
         unique_together = ('budget', 'long_term_goal',)

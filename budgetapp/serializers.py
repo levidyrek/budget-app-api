@@ -1,8 +1,9 @@
-from rest_framework import serializers
-from .models import (Budget, BudgetCategoryGroup, BudgetCategory,
-                     Transaction, Income, LongTermGoal, BudgetGoal)
 from django.contrib.auth.models import User
+from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
+
+from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
+                     Income, LongTermGoal, Transaction)
 
 # Multi-use fields
 owner_field = serializers.PrimaryKeyRelatedField(
