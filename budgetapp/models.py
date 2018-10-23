@@ -73,10 +73,10 @@ class BudgetCategory(models.Model):
         related_name=related_name
     )
     limit = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0
+        max_digits=20, decimal_places=2, default=0
     )
     spent = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0
+        max_digits=20, decimal_places=2, default=0
     )
 
     class Meta:
@@ -95,7 +95,7 @@ class BudgetCategory(models.Model):
 class Transaction(models.Model):
     related_name = 'transactions'
     amount = models.DecimalField(
-        max_digits=10, decimal_places=2
+        max_digits=20, decimal_places=2
     )
     recipient = models.CharField(max_length=100)
     budget_category = models.ForeignKey(
@@ -115,7 +115,7 @@ class Income(models.Model):
     related_name = 'incomes'
     name = models.CharField(max_length=100)
     amount = models.DecimalField(
-        max_digits=10, decimal_places=2
+        max_digits=20, decimal_places=2
     )
     budget = models.ForeignKey(
         Budget, on_delete=models.CASCADE, related_name=related_name
@@ -129,10 +129,10 @@ class Income(models.Model):
 class Goal(models.Model):
     name = models.CharField(max_length=100)
     goal_amount = models.DecimalField(
-        max_digits=10, decimal_places=2
+        max_digits=20, decimal_places=2
     )
     progress = models.DecimalField(
-        max_digits=10, decimal_places=2,  default=0
+        max_digits=20, decimal_places=2,  default=0
     )
 
     def is_met(self):
