@@ -79,9 +79,6 @@ class BudgetCategory(models.Model):
         max_digits=20, decimal_places=2, default=0
     )
 
-    class Meta:
-        unique_together = ('category', 'group',)
-
     def get_money_left(self):
         return self.limit - self.spent
 

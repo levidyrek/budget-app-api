@@ -1,8 +1,9 @@
 import datetime
 from datetime import date
 
-from budgetapp.models import LongTermGoal
 from django.test import TestCase
+
+from budgetapp.models import LongTermGoal
 
 
 class ModelMethodTests(TestCase):
