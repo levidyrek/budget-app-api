@@ -103,6 +103,21 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         queryset=BudgetCategoryGroup.objects.all()
     )
 
+    def validate(self, data):
+        super().validate(data)
+
+        # Enforce uniqueness between category name and budget.
+        existing = BudgetCategory.objects.filter(
+            group__budget=data['group'].budget,
+            category=data['category'],
+        )
+        if existing.exists():
+            raise serializers.ValidationError(
+                'Category must be unique within this budget.'
+            )
+
+        return data
+
     class Meta:
         model = BudgetCategory
         fields = ('url', 'pk', 'category', 'group', 'limit', 'spent',)
