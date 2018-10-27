@@ -41,7 +41,7 @@ class Budget(models.Model):
     class Meta:
         unique_together = ('owner', 'month', 'year')
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.owner.username + \
                '\'s ' + \
                str(self.month) + \
@@ -60,7 +60,7 @@ class BudgetCategoryGroup(models.Model):
     class Meta:
         unique_together = ('name', 'budget',)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name + ' [owner=' + self.budget.owner.username + ']'
 
 
@@ -79,10 +79,11 @@ class BudgetCategory(models.Model):
         max_digits=20, decimal_places=2, default=0
     )
 
-    def get_money_left(self):
+    @property
+    def remaining(self):
         return self.limit - self.spent
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return str(self.category) + ' ' + \
                self.group.budget.month + ' ' + \
                str(self.group.budget.year) + \
@@ -100,7 +101,7 @@ class Transaction(models.Model):
     )
     date = models.DateField()
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return str(self.amount) + ' ' \
                + self.recipient + ' ' \
                + str(self.budget_category) + ' ' \
@@ -118,7 +119,7 @@ class Income(models.Model):
         Budget, on_delete=models.CASCADE, related_name=related_name
     )
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name + ': ' + str(self.amount) + ' - ' + \
                self.budget.owner.username
 
@@ -132,10 +133,11 @@ class Goal(models.Model):
         max_digits=20, decimal_places=2,  default=0
     )
 
+    @property
     def is_met(self):
         return self.progress >= self.goal_amount
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name
 
     class Meta:
@@ -149,6 +151,7 @@ class LongTermGoal(Goal):
         'auth.User', related_name=related_name, on_delete=models.CASCADE
     )
 
+    @property
     def is_past_due(self):
         return date.today() > self.due_date
 
