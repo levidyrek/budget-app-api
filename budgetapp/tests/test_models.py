@@ -1,6 +1,5 @@
 import datetime
 from datetime import date
-from unittest import skip
 
 from django.contrib.auth.models import User
 from django.test import TestCase

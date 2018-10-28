@@ -57,6 +57,10 @@ class BudgetCategoryGroup(models.Model):
         Budget, on_delete=models.CASCADE, related_name=related_name
     )
 
+    @property
+    def owner(self):
+        return self.budget.owner
+
     class Meta:
         unique_together = ('name', 'budget',)
 
@@ -83,6 +87,10 @@ class BudgetCategory(models.Model):
     def remaining(self):
         return self.limit - self.spent
 
+    @property
+    def owner(self):
+        return self.group.budget.owner
+
     def __str__(self):  # pragma: no cover
         return str(self.category) + ' ' + \
                self.group.budget.month + ' ' + \
@@ -101,6 +109,10 @@ class Transaction(models.Model):
     )
     date = models.DateField()
 
+    @property
+    def owner(self):
+        return self.budget_category.group.budget.owner
+
     def __str__(self):  # pragma: no cover
         return str(self.amount) + ' ' \
                + self.recipient + ' ' \
@@ -118,6 +130,10 @@ class Income(models.Model):
     budget = models.ForeignKey(
         Budget, on_delete=models.CASCADE, related_name=related_name
     )
+
+    @property
+    def owner(self):
+        return self.budget.owner
 
     def __str__(self):  # pragma: no cover
         return self.name + ': ' + str(self.amount) + ' - ' + \
@@ -169,6 +185,10 @@ class BudgetGoal(Goal):
         null=True,
         related_name=related_name
     )
+
+    @property
+    def owner(self):
+        return self.budget.owner
 
     class Meta:
         unique_together = ('budget', 'long_term_goal',)

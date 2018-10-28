@@ -8,10 +8,7 @@ from rest_framework.views import APIView
 
 from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
                      Income, LongTermGoal, Transaction)
-from .permissions import (BudgetCategoryGroupPermission,
-                          BudgetCategoryPermission, BudgetGoalPermission,
-                          IncomePermission, IsOwnerOrAdmin,
-                          TransactionPermission)
+from .permissions import IsOwnerOrAdmin
 from .serializers import (BudgetCategoryGroupSerializer,
                           BudgetCategorySerializer, BudgetGoalSerializer,
                           BudgetSerializer, IncomeSerializer,
@@ -32,8 +29,7 @@ class BudgetViewSet(viewsets.ModelViewSet):
 class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):
     queryset = BudgetCategoryGroup.objects.all()
     serializer_class = BudgetCategoryGroupSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          BudgetCategoryGroupPermission)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
 
     def get_queryset(self):
         return BudgetCategoryGroup.objects.filter(
@@ -43,8 +39,7 @@ class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):
 class BudgetCategoryViewSet(viewsets.ModelViewSet):
     queryset = BudgetCategory.objects.all()
     serializer_class = BudgetCategorySerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          BudgetCategoryPermission)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
 
     def get_queryset(self):
         return BudgetCategory.objects.filter(
@@ -54,8 +49,7 @@ class BudgetCategoryViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          TransactionPermission)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
 
     def get_queryset(self):
         return Transaction.objects.filter(
@@ -65,8 +59,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
 class IncomeViewSet(viewsets.ModelViewSet):
     queryset = Income.objects.all()
     serializer_class = IncomeSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          IncomePermission)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
 
     def get_queryset(self):
         return Income.objects.filter(budget__owner=self.request.user)
@@ -84,8 +77,7 @@ class LongTermGoalViewSet(viewsets.ModelViewSet):
 class BudgetGoalViewSet(viewsets.ModelViewSet):
     queryset = BudgetGoal.objects.all()
     serializer_class = BudgetGoalSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          BudgetGoalPermission)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
 
     def get_queryset(self):
         return BudgetGoal.objects.filter(budget__owner=self.request.user)
