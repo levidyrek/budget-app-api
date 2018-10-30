@@ -24,35 +24,27 @@ budgets_category_field = serializers.HyperlinkedRelatedField(
 
 
 class DictSerializer(serializers.ListSerializer):
-    '''
+    """
     Overrides default ListSerializer to return a dict with a custom field from
     each item as the key. Makes it easier to normalize the data so that there
-    is minimal nesting. Must override to_representation to produce a dict with
-    the desired keys.
-    '''
+    is minimal nesting. dict_key defaults to 'pk' but can be overridden.
+    """
+    dict_key = 'pk'
 
     @property
     def data(self):
+        """
+        Overriden to return a ReturnDict instead of a ReturnList.
+        """
         ret = super(serializers.ListSerializer, self).data
         return ReturnDict(ret, serializer=self)
 
     def to_representation(self, data):
-        raise Exception('Must override to_representation')
-
-
-class PkDictSerializer(DictSerializer):
-
-    def to_representation(self, data):
+        """
+        Converts the data from a list to a dictionary.
+        """
         items = super(DictSerializer, self).to_representation(data)
-        ret = {}
-        for item in items:
-            try:
-                ret[item['pk']] = item
-            except AttributeError:
-                raise Exception(
-                    'Item has no pk. Returning list instead of dict.')
-
-        return ret
+        return {item[self.dict_key]: item for item in items}
 
 
 class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
@@ -121,7 +113,7 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BudgetCategory
         fields = ('url', 'pk', 'category', 'group', 'limit', 'spent',)
-        list_serializer_class = PkDictSerializer
+        list_serializer_class = DictSerializer
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
@@ -150,7 +142,7 @@ class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BudgetCategoryGroup
         fields = ('url', 'pk', 'name', 'budget', 'budget_categories',)
-        list_serializer_class = PkDictSerializer
+        list_serializer_class = DictSerializer
 
 
 class BudgetSerializer(serializers.HyperlinkedModelSerializer):

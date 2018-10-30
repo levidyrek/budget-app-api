@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
-from ..views import ObtainAuthTokenCookieView
+from ..views import ObtainAuthTokenCookieView, logout
 
 
 class AuthViewTests(TestCase):
@@ -29,3 +29,11 @@ class AuthViewTests(TestCase):
         cookie = response.cookies['Token']
         self.assertEqual(cookie.value, token)
         self.assertTrue(cookie['httponly'])
+
+    def test_logout(self):
+        request = self.factory.get(reverse('budgetapp:logout'))
+        response = logout(request)
+        cookie = response.cookies['Token']
+        self.assertEqual(cookie.value, 'logout')
+        self.assertTrue(cookie['httponly'])
+        self.assertEqual(cookie['expires'], 'Wed, 21 Oct 1900 07:28:00 GMT')
