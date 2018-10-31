@@ -137,6 +137,9 @@ STATIC_URL = '/static/'
 
 # Django Rest Framework
 REST_FRAMEWORK = {
+    # NOTE: SessionAuthentication is for the browsable API only.
+    # If a token-authenticated client is getting CSRF errors, truncate
+    # the django_session table or remove the user from it.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
