@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -14,6 +16,7 @@ class AuthViewTests(TestCase):
         self.user = User.objects.create_user(
             username='test',
             password='test',
+            email='test@test.com',
         )
 
     def test_obtain_auth_token_cookie_view(self):
@@ -25,10 +28,13 @@ class AuthViewTests(TestCase):
             'password': 'test',
         })
         response = ObtainAuthTokenCookieView.as_view()(request)
-        token = response.data['token']
         cookie = response.cookies['Token']
-        self.assertEqual(cookie.value, token)
+        self.assertTrue(cookie.value)
         self.assertTrue(cookie['httponly'])
+        self.assertEqual(json.loads(response.content), {
+            'username': 'test',
+            'email': 'test@test.com',
+        })
 
     def test_logout(self):
         request = self.factory.get(reverse('budgetapp:logout'))

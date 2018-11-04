@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -124,7 +124,8 @@ class ObtainAuthTokenCookieView(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
-        response = Response({'token': token.key})
+        user_data = UserSerializer(user, context={'request': request})
+        response = JsonResponse(user_data.data)
         response.set_cookie(
             'Token',
             token.key,
