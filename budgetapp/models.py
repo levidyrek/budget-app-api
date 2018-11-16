@@ -21,19 +21,12 @@ class Budget(models.Model):
         ('DEC', 'December')
     )
 
-    YEAR_CHOICES = []
-    for r in range(2000, (datetime.now().year + 1)):
-        YEAR_CHOICES.append((r, r))
-
     month = models.CharField(
         max_length=100,
         choices=MONTH_CHOICES,
         default='JAN',
     )
-    year = models.IntegerField(
-        choices=YEAR_CHOICES,
-        default=datetime.now().year
-    )
+    year = models.IntegerField(default=datetime.now().year)
     owner = models.ForeignKey(
         'auth.User', related_name=related_name, on_delete=models.CASCADE
     )
