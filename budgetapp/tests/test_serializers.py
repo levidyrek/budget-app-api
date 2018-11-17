@@ -31,7 +31,7 @@ class SerializerTests(TestCase):
     def test_budget_category_unique(self):
         serializer = BudgetCategorySerializer(data={
             'category': 'Category 2',
-            'group': self.group.id,
+            'group': self.group.name,
             'limit': 100,
             'spent': 100,
         })
@@ -40,7 +40,7 @@ class SerializerTests(TestCase):
     def test_budget_category_not_unique(self):
         serializer = BudgetCategorySerializer(data={
             'category': 'Category 1',
-            'group': self.group.id,
+            'group': self.group.name,
             'limit': 100,
             'spent': 100,
         })

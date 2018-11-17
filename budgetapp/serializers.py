@@ -91,8 +91,9 @@ class IncomeSerializer(serializers.HyperlinkedModelSerializer):
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategory-detail')
-    group = serializers.PrimaryKeyRelatedField(
-        queryset=BudgetCategoryGroup.objects.all()
+    group = serializers.SlugRelatedField(
+        queryset=BudgetCategoryGroup.objects.all(),
+        slug_field='name',
     )
 
     def validate(self, data):
@@ -127,6 +128,10 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
                   'budget_category_id', 'date')
 
 
+class BudgetCategoryGroupListSerializer(DictSerializer):
+    dict_key = 'name'
+
+
 class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategorygroup-detail')
@@ -142,7 +147,7 @@ class BudgetCategoryGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BudgetCategoryGroup
         fields = ('url', 'pk', 'name', 'budget', 'budget_categories',)
-        list_serializer_class = DictSerializer
+        list_serializer_class = BudgetCategoryGroupListSerializer
 
 
 class BudgetSerializer(serializers.HyperlinkedModelSerializer):
