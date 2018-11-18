@@ -96,6 +96,8 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         slug_field='name',
     )
 
+    # TODO: Make group a CharField, and either get or create the corresponding
+    # model instance, so that new groups can be created easily this way.
     def validate(self, data):
         super().validate(data)
 
