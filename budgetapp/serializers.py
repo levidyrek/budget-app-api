@@ -91,19 +91,18 @@ class IncomeSerializer(serializers.HyperlinkedModelSerializer):
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategory-detail')
-    group = serializers.SlugRelatedField(
-        queryset=BudgetCategoryGroup.objects.all(),
-        slug_field='name',
+    group = serializers.CharField(source='group.name')
+    budget = serializers.PrimaryKeyRelatedField(
+        queryset=Budget.objects.all(),
+        source='group.budget',
     )
 
-    # TODO: Make group a CharField, and either get or create the corresponding
-    # model instance, so that new groups can be created easily this way.
     def validate(self, data):
         super().validate(data)
 
         # Enforce uniqueness between category name and budget.
         existing = BudgetCategory.objects.filter(
-            group__budget=data['group'].budget,
+            group__budget=data['group']['budget'],
             category=data['category'],
         )
         if existing.exists():
@@ -115,7 +114,9 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BudgetCategory
-        fields = ('url', 'pk', 'category', 'group', 'limit', 'spent',)
+        fields = (
+            'url', 'pk', 'budget', 'category', 'group', 'limit', 'spent',
+        )
         list_serializer_class = DictSerializer
 
 
@@ -178,8 +179,10 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Budget
-        fields = ('url', 'owner', 'month', 'year', 'budget_category_groups',
-                  'budget_categories', 'budget_goals')
+        fields = (
+            'url', 'pk', 'owner', 'month', 'year','budget_category_groups',
+            'budget_categories', 'budget_goals'
+        )
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
