@@ -92,17 +92,16 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:budgetcategory-detail')
     group = serializers.CharField(source='group.name')
-    budget = serializers.PrimaryKeyRelatedField(
-        queryset=Budget.objects.all(),
-        source='group.budget',
-    )
+    budget_month = serializers.CharField(write_only=True)
+    budget_year = serializers.IntegerField(write_only=True)
 
     def validate(self, data):
         super().validate(data)
 
         # Enforce uniqueness between category name and budget.
         existing = BudgetCategory.objects.filter(
-            group__budget=data['group']['budget'],
+            group__budget__month=data['budget_month'],
+            group__budget__year=data['budget_year'],
             category=data['category'],
         )
         if existing.exists():
@@ -112,10 +111,31 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 
         return data
 
+    def create(self, validated_data):
+        budget, created = Budget.objects.get_or_create(
+            month=validated_data['budget_month'],
+            year=validated_data['budget_year'],
+            owner=self.context['request'].user,
+        )
+        group, created = BudgetCategoryGroup.objects.get_or_create(
+            budget=budget,
+            name=validated_data['group']['name'],
+        )
+
+        del validated_data['budget_month']
+        del validated_data['budget_year']
+        del validated_data['group']
+
+        return BudgetCategory.objects.create(
+            **validated_data,
+            group=group
+        )
+
     class Meta:
         model = BudgetCategory
         fields = (
-            'url', 'pk', 'budget', 'category', 'group', 'limit', 'spent',
+            'url', 'pk', 'budget_month', 'budget_year', 'category', 'group',
+            'limit', 'spent',
         )
         list_serializer_class = DictSerializer
 
@@ -180,7 +200,7 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Budget
         fields = (
-            'url', 'pk', 'owner', 'month', 'year','budget_category_groups',
+            'url', 'pk', 'owner', 'month', 'year', 'budget_category_groups',
             'budget_categories', 'budget_goals'
         )
 
