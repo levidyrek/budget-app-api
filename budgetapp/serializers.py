@@ -112,6 +112,14 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         return data
 
     def create(self, validated_data):
+        self.get_or_create_related(validated_data)
+        return BudgetCategory.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        self.get_or_create_related(validated_data)
+        return super().update(instance, validated_data)
+
+    def get_or_create_related(self, validated_data):
         budget, created = Budget.objects.get_or_create(
             month=validated_data['budget_month'],
             year=validated_data['budget_year'],
@@ -126,10 +134,7 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         del validated_data['budget_year']
         del validated_data['group']
 
-        return BudgetCategory.objects.create(
-            **validated_data,
-            group=group
-        )
+        validated_data['group'] = group
 
     class Meta:
         model = BudgetCategory
