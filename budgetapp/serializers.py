@@ -125,6 +125,8 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
             year=validated_data['budget_year'],
             owner=self.context['request'].user,
         )
+
+        # TODO: Figure out why group has to be in a nested dict.
         group, created = BudgetCategoryGroup.objects.get_or_create(
             budget=budget,
             name=validated_data['group']['name'],
