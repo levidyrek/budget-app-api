@@ -98,16 +98,28 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     def validate(self, data):
         super().validate(data)
 
-        # Enforce uniqueness between category name and budget.
-        existing = BudgetCategory.objects.filter(
-            group__budget__month=data['budget_month'],
-            group__budget__year=data['budget_year'],
-            category=data['category'],
-        )
-        if existing.exists():
-            raise serializers.ValidationError(
-                'Category must be unique within this budget.'
+        unique_fields = ['budget_month', 'budget_year', 'category']
+        if any(key in data for key in unique_fields):
+            budget_month = data.get('budget_month') or \
+                self.instance.group.budget.month
+            budget_year = data.get('budget_year') or \
+                self.instance.group.budget.year
+            category = data.get('category') or self.instance.category
+
+            # Enforce uniqueness between category name and budget.
+            existing = BudgetCategory.objects.filter(
+                group__budget__month=budget_month,
+                group__budget__year=budget_year,
+                category=category,
             )
+
+            if self.instance:
+                existing = existing.exclude(id=self.instance.id)
+
+            if existing.exists():
+                raise serializers.ValidationError(
+                    'Category must be unique within this budget.'
+                )
 
         return data
 
@@ -120,21 +132,31 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         return super().update(instance, validated_data)
 
     def get_or_create_related(self, validated_data):
+        budget_month = validated_data.get('budget_month')
+        budget_year = validated_data.get('budget_year')
+        category = validated_data.get('category')
+        group = validated_data.get('group', {}).get('name')
+
+        if self.instance:
+            budget_month = budget_month or self.instance.group.budget.month
+            budget_year = budget_year or self.instance.group.budget.year
+            category = category or self.instance.category
+            group = group or self.instance.group.name
+
         budget, created = Budget.objects.get_or_create(
-            month=validated_data['budget_month'],
-            year=validated_data['budget_year'],
+            month=budget_month,
+            year=budget_year,
             owner=self.context['request'].user,
         )
 
-        # TODO: Figure out why group has to be in a nested dict.
         group, created = BudgetCategoryGroup.objects.get_or_create(
             budget=budget,
-            name=validated_data['group']['name'],
+            name=group,
         )
 
-        del validated_data['budget_month']
-        del validated_data['budget_year']
-        del validated_data['group']
+        validated_data.pop('budget_month', None)
+        validated_data.pop('budget_year', None)
+        validated_data.pop('group', None)
 
         validated_data['group'] = group
 
