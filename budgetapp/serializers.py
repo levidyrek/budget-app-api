@@ -98,28 +98,26 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     def validate(self, data):
         super().validate(data)
 
-        unique_fields = ['budget_month', 'budget_year', 'category']
-        if any(key in data for key in unique_fields):
-            budget_month = data.get('budget_month') or \
-                self.instance.group.budget.month
-            budget_year = data.get('budget_year') or \
-                self.instance.group.budget.year
-            category = data.get('category') or self.instance.category
+        # Enforce uniqueness between category name and budget.
+        budget_month = data.get('budget_month') or \
+            self.instance.group.budget.month
+        budget_year = data.get('budget_year') or \
+            self.instance.group.budget.year
+        category = data.get('category') or self.instance.category
 
-            # Enforce uniqueness between category name and budget.
-            existing = BudgetCategory.objects.filter(
-                group__budget__month=budget_month,
-                group__budget__year=budget_year,
-                category=category,
+        existing = BudgetCategory.objects.filter(
+            group__budget__month=budget_month,
+            group__budget__year=budget_year,
+            category=category,
+        )
+
+        if self.instance:
+            existing = existing.exclude(id=self.instance.id)
+
+        if existing.exists():
+            raise serializers.ValidationError(
+                'Category must be unique within this budget.'
             )
-
-            if self.instance:
-                existing = existing.exclude(id=self.instance.id)
-
-            if existing.exists():
-                raise serializers.ValidationError(
-                    'Category must be unique within this budget.'
-                )
 
         return data
 

@@ -72,7 +72,7 @@ class BudgetCategoryViewTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def test_budget_category_create_all_existing(self):
+    def test_budget_category_create(self):
         response = self.client.post('/budgetcategories/', {
             'budget_year': self.group.budget.year,
             'budget_month': self.group.budget.month,
@@ -89,7 +89,11 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(data['limit'], '100.00')
         self.assertEqual(data['spent'], '100.00')
 
-    def test_budget_category_create_all_not_existing(self):
+    def test_budget_category_create_related_not_existing(self):
+        """
+        If a budget month/year or group name is given that does
+        not match an existing instance, one is created.
+        """
         response = self.client.post('/budgetcategories/', {
             'budget_year': 9999,
             'budget_month': 'JAN',
@@ -114,7 +118,67 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(category.limit, 100)
         self.assertEqual(category.spent, 100)
 
-    def test_budget_category_patch_all_not_existing(self):
+    def test_budget_category_update(self):
+        response = self.client.put(
+            '/budgetcategories/{}/'.format(self.category.id), {
+                'budget_year': self.group.budget.year,
+                'budget_month': self.group.budget.month,
+                'category': 'Category 2',
+                'group': self.group.name,
+                'limit': 100,
+                'spent': 100,
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['category'], 'Category 2')
+        self.assertEqual(data['group'], self.group.name)
+        self.assertEqual(data['limit'], '100.00')
+        self.assertEqual(data['spent'], '100.00')
+
+    def test_budget_category_update_related_not_existing(self):
+        """
+        If a budget month/year or group name is given that does
+        not match an existing instance, one is created.
+        """
+        response = self.client.put(
+            '/budgetcategories/{}/'.format(self.category.id), {
+                'budget_year': 9999,
+                'budget_month': 'JAN',
+                'category': 'Category 2',
+                'group': 'Not Existing',
+                'limit': 100,
+                'spent': 100,
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['category'], 'Category 2')
+        self.assertEqual(data['group'], 'Not Existing')
+        self.assertEqual(data['limit'], '100.00')
+        self.assertEqual(data['spent'], '100.00')
+
+        category = BudgetCategory.objects.get(category='Category 2')
+        self.assertEqual(category.group.budget.year, 9999)
+        self.assertEqual(category.group.budget.month, 'JAN')
+        self.assertEqual(category.category, 'Category 2')
+        self.assertEqual(category.group.name, 'Not Existing')
+        self.assertEqual(category.limit, 100)
+        self.assertEqual(category.spent, 100)
+
+    def test_budget_category_patch_with_same_values(self):
+        response = self.client.patch(
+            '/budgetcategories/{}/'.format(self.category.id), {
+                'budget_year': self.category.group.budget.year,
+                'budget_month': self.category.group.budget.month,
+                'category': self.category.category,
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_budget_category_patch_related_not_existing(self):
         response = self.client.patch(
             '/budgetcategories/{}/'.format(self.category.id), {
                 'budget_year': 9999,
@@ -176,13 +240,3 @@ class BudgetCategoryViewTests(TestCase):
         data = json.loads(response.content)
         self.assertEqual(data['limit'], '200.00')
         self.assertEqual(data['spent'], '200.00')
-
-    def test_budget_category_patch_with_same_values(self):
-        response = self.client.patch(
-            '/budgetcategories/{}/'.format(self.category.id), {
-                'budget_year': self.category.group.budget.year,
-                'budget_month': self.category.group.budget.month,
-                'category': self.category.category,
-            }
-        )
-        self.assertEqual(response.status_code, 200)
