@@ -118,6 +118,16 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(category.limit, 100)
         self.assertEqual(category.spent, 100)
 
+    def test_budget_category_create_insufficient_fields(self):
+        response = self.client.post('/budgetcategories/', {
+            'budget_month': 'JAN',
+            'category': 'Category 2',
+            'group': 'Not Existing',
+            'limit': 100,
+            'spent': 100,
+        })
+        self.assertEqual(response.status_code, 400)
+
     def test_budget_category_update(self):
         response = self.client.put(
             '/budgetcategories/{}/'.format(self.category.id), {
@@ -167,6 +177,16 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(category.group.name, 'Not Existing')
         self.assertEqual(category.limit, 100)
         self.assertEqual(category.spent, 100)
+
+    def test_budget_category_update_insufficient_fields(self):
+        response = self.client.post('/budgetcategories/', {
+            'budget_month': 'JAN',
+            'category': 'Category 2',
+            'group': 'Not Existing',
+            'limit': 100,
+            'spent': 100,
+        })
+        self.assertEqual(response.status_code, 400)
 
     def test_budget_category_patch_with_same_values(self):
         response = self.client.patch(

@@ -99,11 +99,14 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         super().validate(data)
 
         # Enforce uniqueness between category name and budget.
-        budget_month = data.get('budget_month') or \
-            self.instance.group.budget.month
-        budget_year = data.get('budget_year') or \
-            self.instance.group.budget.year
-        category = data.get('category') or self.instance.category
+        budget_month = data.get('budget_month')
+        budget_year = data.get('budget_year')
+        category = data.get('category')
+
+        if self.instance:
+            budget_month = budget_month or self.instance.group.budget.month
+            budget_year = budget_year or self.instance.group.budget.year
+            category = category or self.instance.category
 
         existing = BudgetCategory.objects.filter(
             group__budget__month=budget_month,
