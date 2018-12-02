@@ -10,3 +10,13 @@ def cookie_token_middleware(get_response):
         return get_response(request)
 
     return middleware
+
+
+def disable_cache_middleware(get_response):
+
+    def middleware(request):
+        response = get_response(request)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return response
+
+    return middleware
