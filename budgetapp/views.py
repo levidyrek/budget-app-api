@@ -16,7 +16,12 @@ from .serializers import (BudgetCategoryGroupSerializer,
                           UserSerializer)
 
 
-class BudgetViewSet(viewsets.ModelViewSet):
+class OwnerMixin:
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class BudgetViewSet(OwnerMixin, viewsets.ModelViewSet):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)

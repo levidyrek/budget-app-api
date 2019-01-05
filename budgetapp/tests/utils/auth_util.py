@@ -44,64 +44,14 @@ test_users = [
 ]
 
 
-# ------- Helper Functions ------- #
-
-
-def create_test_users():
-    """
-    Creates test users from test_users data
-    """
-    for test_user in test_users:
-        User.objects.create_user(username=test_user['username'],
-                                 email=test_user['email'],
-                                 password=test_user['password'])
-
-
-def login_test_user(client, index=0):
-    """
-    Logs in selected test user
-    :param client:
-    :param index: The index of the desired user in test_users
-    :return:
-    """
-    user = User.objects.get(username=test_users[index]['username'])
-    if user is None:
-        raise Exception('Test user does not exist')
-    client.force_login(user)
-
-
-def create_test_model(client, model_name, test_user_index=0):
-    """
-    Logs in as test user (create_test_users must be called first) and
-    calls the test model function corresponding to the given name
-    :param client:
-    :param model_name: Name of the model to be created
-    :param test_user_index: Index of the user to create the object with
-    :return: The post response
-    """
-    login_test_user(client, test_user_index)
-
-    url = app_name + ':' + model_name + '-list'
-    test_data = post_data[model_name]
-
-    response = client.post(reverse(url), test_data)
-    if response.status_code != status.HTTP_201_CREATED:
-        raise Exception('Test ' + model_name + ' could not be created: ' +
-                        str(response.data))
-
-    client.logout()
-
-    return response
-
-
 # ---------- LIST ------------- #
 
 
 def list_test(client, model_name, auth=False, test_user_index=0):
-    url = app_name + ':' + model_name + '-list'
+    url = get_url(model_name, 'list')
     if auth:
         login_test_user(client, test_user_index)
-    response = client.get(reverse(url))
+    response = client.get(url)
     client.logout()
     return response
 
@@ -110,10 +60,10 @@ def list_test(client, model_name, auth=False, test_user_index=0):
 
 
 def post_test(client, model_name, auth=False, test_user_index=0):
-    url = app_name + ':' + model_name + '-list'
+    url = get_url(model_name, 'list')
     if auth:
         login_test_user(client, test_user_index)
-    response = client.post(reverse(url), post_data[model_name])
+    response = client.post(url, post_data[model_name])
     client.logout()
     return response
 
@@ -188,3 +138,57 @@ def delete_cross_user_test(client, model_name):
     response = client.delete(response.data['url'])
     client.logout()
     return response
+
+
+# ------- Helper Functions ------- #
+
+
+def create_test_users():
+    """
+    Creates test users from test_users data
+    """
+    for test_user in test_users:
+        User.objects.create_user(username=test_user['username'],
+                                 email=test_user['email'],
+                                 password=test_user['password'])
+
+
+def login_test_user(client, index=0):
+    """
+    Logs in selected test user
+    :param client:
+    :param index: The index of the desired user in test_users
+    :return:
+    """
+    user = User.objects.get(username=test_users[index]['username'])
+    if user is None:
+        raise Exception('Test user does not exist')
+    client.force_login(user)
+
+
+def create_test_model(client, model_name, test_user_index=0):
+    """
+    Logs in as test user (create_test_users must be called first) and
+    calls the test model function corresponding to the given name
+    :param client:
+    :param model_name: Name of the model to be created
+    :param test_user_index: Index of the user to create the object with
+    :return: The post response
+    """
+    login_test_user(client, test_user_index)
+
+    url = get_url(model_name, 'list')
+    test_data = post_data[model_name]
+
+    response = client.post(url, test_data)
+    if response.status_code != status.HTTP_201_CREATED:
+        raise Exception('Test ' + model_name + ' could not be created: ' +
+                        str(response.data))
+
+    client.logout()
+
+    return response
+
+
+def get_url(model_name, suffix):
+    return reverse('{}:{}-{}'.format(app_name, model_name, suffix))

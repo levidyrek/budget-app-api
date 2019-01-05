@@ -20,7 +20,6 @@ class BaseTestCase(APITestCase):
         pass
 
 
-@skip('Needs to be fixed.')
 class BudgetTests(BaseTestCase):
     """
     Ensures the actions (POST, PUT, LIST, DETAIL, DELETE) work as expected with
@@ -33,23 +32,23 @@ class BudgetTests(BaseTestCase):
 
     def test_list_no_auth(self):
         response = auth_util.list_test(self.client, self.model_name)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_detail_no_auth(self):
         response = auth_util.detail_test(self.client, self.model_name)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_post_no_auth(self):
         response = auth_util.post_test(self.client, self.model_name)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_put_no_auth(self):
         response = auth_util.put_test(self.client, self.model_name)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_no_auth(self):
         response = auth_util.delete_test(self.client, self.model_name)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # --------- Authentication Tests ------------ #
 
