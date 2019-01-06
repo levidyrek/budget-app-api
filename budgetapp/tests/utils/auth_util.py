@@ -8,9 +8,8 @@ from budgetapp.urls import app_name
 
 # Model Names
 BUDGET_NAME = 'budget'
-CATEGORY_NAME = 'category'
-CATEGORYBUDGETGROUP_NAME = 'categorybudgetgroup'
-CATEGORYBUDGET_NAME = 'categorybudget'
+CATEGORY_NAME = 'budgetcategory'
+CATEGORYBUDGETGROUP_NAME = 'budgetcategorygroup'
 TRANSACTION_NAME = 'transaction'
 INCOME_NAME = 'income'
 LONGTERMGOAL_NAME = 'longtermgoal'
@@ -20,11 +19,13 @@ USER_NAME = 'user'
 # Test Data
 post_data = {
     BUDGET_NAME: {'month': 'JAN', 'year': 2017},
-    CATEGORY_NAME: {'name': 'Groceries'},
-    CATEGORYBUDGETGROUP_NAME: {'name': 'test', 'budget': ''},
-    CATEGORYBUDGET_NAME: {
-        'limit': 100, 'spent': 0, 'group': '', 'category': ''
+    CATEGORY_NAME: {
+        'budget_month': 'JAN',
+        'budget_year': 2017,
+        'group': 'test',
+        'category': 'Groceries',
     },
+    CATEGORYBUDGETGROUP_NAME: {'name': 'test', 'budget': ''},
     TRANSACTION_NAME: {
         'amount': 100, 'recipient': 'test', 'category_budget': '',
         'date': date.today()
