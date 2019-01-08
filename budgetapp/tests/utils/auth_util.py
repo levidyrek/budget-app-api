@@ -1,5 +1,3 @@
-from datetime import date
-
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
@@ -18,25 +16,24 @@ USER_NAME = 'user'
 
 # Test Data
 post_data = {
-    BUDGET_NAME: {'month': 'JAN', 'year': 2017},
+    BUDGET_NAME: {
+        'month': 'JAN',
+        'year': 2017,
+    },
     CATEGORY_NAME: {
         'budget_month': 'JAN',
         'budget_year': 2017,
         'group': 'test',
         'category': 'Groceries',
     },
-    CATEGORYBUDGETGROUP_NAME: {'name': 'test', 'budget': ''},
-    TRANSACTION_NAME: {
-        'amount': 100, 'recipient': 'test', 'category_budget': '',
-        'date': date.today()
+    CATEGORYBUDGETGROUP_NAME: {
+        'name': 'test',
+        'budget': '',
     },
-    INCOME_NAME: {'amount': 100, 'name': 'paycheck 1', 'budget': ''},
-    LONGTERMGOAL_NAME: {'name': 'test', 'goal_amount': 100, 'progress': 0,
-                        'due_date': date.today()},
-    BUDGETGOAL_NAME: {'name': 'test', 'goal_amount': 100, 'progress': 0,
-                      'long_term_goal': '', 'budget': ''},
     USER_NAME: {
-        'username': 'test', 'email': 'test@test.com', 'password': 'test'
+        'username': 'test',
+        'email': 'test@test.com',
+        'password': 'test',
     }
 }
 test_users = [
@@ -191,5 +188,5 @@ def create_test_model(client, model_name, test_user_index=0):
     return response
 
 
-def get_url(model_name, suffix):
-    return reverse('{}:{}-{}'.format(app_name, model_name, suffix))
+def get_url(model_name, suffix, args=[]):
+    return reverse('{}:{}-{}'.format(app_name, model_name, suffix), args=args)

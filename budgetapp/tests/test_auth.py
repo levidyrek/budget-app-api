@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
@@ -109,9 +107,7 @@ class CategoryBudgetGroupTests(BaseTestMixin, APITestCase):
             response.data['url']
 
 
-@skip('Needs to be fixed.')
 class UserTests(BaseTestMixin, APITestCase):
-
     model_name = auth_util.USER_NAME
 
     def setUp(self):
@@ -120,16 +116,14 @@ class UserTests(BaseTestMixin, APITestCase):
         test_pk = User.objects.get(
             username=auth_util.test_users[0]['username']
         ).pk
-        self.detail_url = reverse(app_name + ':' + self.model_name + '-detail',
-                                  args=[test_pk])
+        self.detail_url = \
+            auth_util.get_url(self.model_name, 'detail', args=[test_pk])
 
         test_pk = User.objects.get(
             username=auth_util.test_users[1]['username']
         ).pk
-        self.detail_url2 = reverse(
-            app_name + ':' + self.model_name + '-detail',
-            args=[test_pk]
-        )
+        self.detail_url2 = \
+            auth_util.get_url(self.model_name, 'detail', args=[test_pk])
 
     # -------- No authentication tests -------- #
 
@@ -143,16 +137,15 @@ class UserTests(BaseTestMixin, APITestCase):
 
     def test_post_no_auth(self):
         """
-        Note: Should succeed without authentication
+        Users can be created without authentication.
         """
-        url = app_name + ':' + self.model_name + '-create'
-        response = self.client.post(
-            reverse(url), auth_util.post_data[self.model_name]
-        )
+        url = auth_util.get_url(self.model_name, 'create')
+        response = self.client.post(url, auth_util.post_data[self.model_name])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_put_no_auth(self):
-        response = self.client.put(self.detail_url, )
+        response = self.client.put(
+            self.detail_url, auth_util.post_data[auth_util.USER_NAME])
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_no_auth(self):
@@ -163,7 +156,7 @@ class UserTests(BaseTestMixin, APITestCase):
 
     def test_list_auth(self):
         """
-        Forbidden for non-admin users
+        Forbidden for non-admin users.
         """
         response = auth_util.list_test(self.client, self.model_name, True)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -198,20 +191,20 @@ class UserTests(BaseTestMixin, APITestCase):
     # ---------- Cross-User Actions ----------- #
 
     def test_detail_cross_user(self):
-        auth_util.login_test_user(self.client, 0)
+        auth_util.login_test_user(self.client, index=0)
         response = self.client.get(self.detail_url2)
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_cross_user(self):
-        auth_util.login_test_user(self.client, 0)
+        auth_util.login_test_user(self.client, index=0)
         response = self.client.put(
             self.detail_url2, auth_util.post_data[auth_util.USER_NAME])
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_cross_user(self):
-        auth_util.login_test_user(self.client, 0)
+        auth_util.login_test_user(self.client, index=0)
         response = self.client.delete(self.detail_url2)
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
