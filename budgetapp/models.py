@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 
 from django.db import models
 
@@ -96,11 +96,12 @@ class Transaction(models.Model):
     amount = models.DecimalField(
         max_digits=20, decimal_places=2
     )
-    recipient = models.CharField(max_length=100)
+    recipient = models.ForeignKey('Payee', on_delete=models.CASCADE)
     budget_category = models.ForeignKey(
-        BudgetCategory, on_delete=models.CASCADE, related_name=related_name
+        'BudgetCategory', on_delete=models.CASCADE
     )
     date = models.DateField()
+    inflow = models.BooleanField()
 
     @property
     def owner(self):
@@ -108,80 +109,15 @@ class Transaction(models.Model):
 
     def __str__(self):  # pragma: no cover
         return str(self.amount) + ' ' \
-               + self.recipient + ' ' \
+               + self.recipient.name + ' ' \
                + str(self.budget_category) + ' ' \
                + str(self.date) + ' ' \
-               + self.budget_category.group.budget.owner.username
+               + self.budget_category.group.budget.owner.username + ' ' \
+               + self.inflow
 
 
-class Income(models.Model):
-    related_name = 'incomes'
-    name = models.CharField(max_length=100)
-    amount = models.DecimalField(
-        max_digits=20, decimal_places=2
-    )
-    budget = models.ForeignKey(
-        Budget, on_delete=models.CASCADE, related_name=related_name
-    )
+class Payee(models.Model):
+    name = models.CharField(max_length=30)
 
-    @property
-    def owner(self):
-        return self.budget.owner
-
-    def __str__(self):  # pragma: no cover
-        return self.name + ': ' + str(self.amount) + ' - ' + \
-               self.budget.owner.username
-
-
-class Goal(models.Model):
-    name = models.CharField(max_length=100)
-    goal_amount = models.DecimalField(
-        max_digits=20, decimal_places=2
-    )
-    progress = models.DecimalField(
-        max_digits=20, decimal_places=2,  default=0
-    )
-
-    @property
-    def is_met(self):
-        return self.progress >= self.goal_amount
-
-    def __str__(self):  # pragma: no cover
+    def __str__(self):
         return self.name
-
-    class Meta:
-        abstract = True
-
-
-class LongTermGoal(Goal):
-    related_name = 'long_term_goals'
-    due_date = models.DateField()
-    owner = models.ForeignKey(
-        'auth.User', related_name=related_name, on_delete=models.CASCADE
-    )
-
-    @property
-    def is_past_due(self):
-        return date.today() > self.due_date
-
-
-class BudgetGoal(Goal):
-    related_name = 'budget_goals'
-    budget = models.ForeignKey(
-        Budget,
-        on_delete=models.CASCADE,
-        related_name=related_name
-    )
-    long_term_goal = models.ForeignKey(
-        LongTermGoal,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name=related_name
-    )
-
-    @property
-    def owner(self):
-        return self.budget.owner
-
-    class Meta:
-        unique_together = ('budget', 'long_term_goal',)

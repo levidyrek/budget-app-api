@@ -52,5 +52,4 @@ class PermissionsTests(TestCase):
         self.assertTrue(is_owner_or_admin(self.staff_user, self.budget1))
 
     def test_is_owner_or_admin_no_owner_attribute(self):
-        with self.assertRaises(AttributeError):
-            is_owner_or_admin(self.staff_user, object())
+        self.assertTrue(is_owner_or_admin(self.staff_user, object()))

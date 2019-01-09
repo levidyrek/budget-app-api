@@ -9,9 +9,6 @@ BUDGET_NAME = 'budget'
 CATEGORY_NAME = 'budgetcategory'
 CATEGORYBUDGETGROUP_NAME = 'budgetcategorygroup'
 TRANSACTION_NAME = 'transaction'
-INCOME_NAME = 'income'
-LONGTERMGOAL_NAME = 'longtermgoal'
-BUDGETGOAL_NAME = 'budgetgoal'
 USER_NAME = 'user'
 
 # Test Data

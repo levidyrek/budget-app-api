@@ -2,8 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
-                     Income, LongTermGoal, Transaction)
+from .models import (Budget, BudgetCategory, BudgetCategoryGroup, Transaction)
 
 # Multi-use fields
 owner_field = serializers.PrimaryKeyRelatedField(
@@ -45,47 +44,6 @@ class DictSerializer(serializers.ListSerializer):
         """
         items = super(DictSerializer, self).to_representation(data)
         return {item[self.dict_key]: item for item in items}
-
-
-class LongTermGoalSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='budgetapp:longtermgoal-detail')
-    owner = owner_field
-    budget_goals = serializers.HyperlinkedRelatedField(
-        view_name='budgetapp:budgetgoal-detail',
-        many=True,
-        read_only=True
-    )
-
-    class Meta:
-        model = LongTermGoal
-        fields = ('url', 'name', 'goal_amount', 'progress', 'due_date',
-                  'owner', 'budget_goals',)
-
-
-class BudgetGoalSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='budgetapp:budgetgoal-detail')
-    budget = budget_field
-    long_term_goal = serializers.HyperlinkedRelatedField(
-        queryset=LongTermGoal.objects.all(),
-        view_name='budgetapp:longtermgoal-detail'
-    )
-
-    class Meta:
-        model = BudgetGoal
-        fields = ('url', 'name', 'goal_amount', 'progress', 'budget',
-                  'long_term_goal')
-
-
-class IncomeSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='budgetapp:income-detail')
-    budget = budget_field
-
-    class Meta:
-        model = Income
-        fields = ('url', 'name', 'amount', 'budget')
 
 
 class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
@@ -212,10 +170,6 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True
     )
     budget_categories = serializers.SerializerMethodField()
-    budget_goals = BudgetGoalSerializer(
-        many=True,
-        read_only=True
-    )
 
     def get_budget_categories(self, budget):
         budget_cats = BudgetCategory.objects.filter(
@@ -231,7 +185,7 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
         model = Budget
         fields = (
             'url', 'pk', 'owner', 'month', 'year', 'budget_category_groups',
-            'budget_categories', 'budget_goals'
+            'budget_categories',
         )
 
 

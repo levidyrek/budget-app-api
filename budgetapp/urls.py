@@ -9,9 +9,6 @@ app_name = 'budgetapp'
 router = DefaultRouter()
 router.register(r'budgets', views.BudgetViewSet)
 router.register(r'budgetcategories', views.BudgetCategoryViewSet)
-router.register(r'incomes', views.IncomeViewSet)
-router.register(r'budgetgoals', views.BudgetGoalViewSet)
-router.register(r'longtermgoals', views.LongTermGoalViewSet)
 router.register(r'budgetcategorygroups', views.BudgetCategoryGroupViewSet)
 router.register(r'transactions', views.TransactionViewSet)
 

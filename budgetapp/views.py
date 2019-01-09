@@ -6,13 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import (Budget, BudgetCategory, BudgetCategoryGroup, BudgetGoal,
-                     Income, LongTermGoal, Transaction)
+from .models import (Budget, BudgetCategory, BudgetCategoryGroup, Transaction)
 from .permissions import IsOwnerOrAdmin
 from .serializers import (BudgetCategoryGroupSerializer,
-                          BudgetCategorySerializer, BudgetGoalSerializer,
-                          BudgetSerializer, IncomeSerializer,
-                          LongTermGoalSerializer, TransactionSerializer,
+                          BudgetCategorySerializer,
+                          BudgetSerializer, TransactionSerializer,
                           UserSerializer)
 
 
@@ -59,33 +57,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Transaction.objects.filter(
             budget_category__group__budget__owner=self.request.user)
-
-
-class IncomeViewSet(viewsets.ModelViewSet):
-    queryset = Income.objects.all()
-    serializer_class = IncomeSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return Income.objects.filter(budget__owner=self.request.user)
-
-
-class LongTermGoalViewSet(viewsets.ModelViewSet):
-    queryset = LongTermGoal.objects.all()
-    serializer_class = LongTermGoalSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return LongTermGoal.objects.filter(owner=self.request.user)
-
-
-class BudgetGoalViewSet(viewsets.ModelViewSet):
-    queryset = BudgetGoal.objects.all()
-    serializer_class = BudgetGoalSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrAdmin)
-
-    def get_queryset(self):
-        return BudgetGoal.objects.filter(budget__owner=self.request.user)
 
 
 class UserCreateView(generics.CreateAPIView):
