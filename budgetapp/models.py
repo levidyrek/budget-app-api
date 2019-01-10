@@ -118,6 +118,7 @@ class Transaction(models.Model):
 
 class Payee(models.Model):
     name = models.CharField(max_length=30)
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
