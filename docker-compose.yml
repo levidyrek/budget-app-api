@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+  db-init:
+    build:
+      context: .
+      dockerfile: docker/db-init/Dockerfile
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
