@@ -7,8 +7,6 @@ services:
     build:
       context: .
       dockerfile: docker/db-init/Dockerfile
-    volumes:
-      - .:/code
     depends_on:
       - db
   api:
