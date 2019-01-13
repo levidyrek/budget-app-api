@@ -1,7 +1,13 @@
 FROM python:3.7.1
 
-WORKDIR /code/
+RUN apt-get update && \
+    apt-get install -y postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
 
+COPY requirements.txt /code/
+WORKDIR /code/
 RUN pip install -r requirements.txt
 
-CMD [ "./docker/db-init/startup.sh" ]
+COPY . /code/
+
+CMD [ "./docker/db-init/wait-for-postgres.sh", "db", "./docker/db-init/startup.sh" ]
