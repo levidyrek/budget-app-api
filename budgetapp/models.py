@@ -92,7 +92,6 @@ class BudgetCategory(models.Model):
 
 
 class Transaction(models.Model):
-    related_name = 'transactions'
     amount = models.DecimalField(
         max_digits=20, decimal_places=2
     )

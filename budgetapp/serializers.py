@@ -2,7 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .models import (Budget, BudgetCategory, BudgetCategoryGroup, Transaction)
+from .models import (
+    Budget,
+    BudgetCategory,
+    BudgetCategoryGroup,
+    Payee,
+    Transaction,
+)
 
 # Multi-use fields
 owner_field = serializers.PrimaryKeyRelatedField(
@@ -131,12 +137,20 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='budgetapp:transaction-detail')
-    budget_category_id = serializers.IntegerField()
+    budget_category = serializers.PrimaryKeyRelatedField(
+        queryset=BudgetCategory.objects.all(),
+    )
+    recipient = serializers.PrimaryKeyRelatedField(
+        queryset=Payee.objects.all(),
+    )
 
     class Meta:
         model = Transaction
-        fields = ('url', 'amount', 'recipient',
-                  'budget_category_id', 'date')
+        fields = (
+            'url', 'amount', 'budget_category_id', 'date', 'inflow',
+            'recipient',
+        )
+        list_serializer_class = DictSerializer
 
 
 class BudgetCategoryGroupListSerializer(DictSerializer):
@@ -170,6 +184,7 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
         read_only=True
     )
     budget_categories = serializers.SerializerMethodField()
+    transactions = serializers.SerializerMethodField()
 
     def get_budget_categories(self, budget):
         budget_cats = BudgetCategory.objects.filter(
@@ -180,6 +195,17 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
             context={'request': self.context['request']}
         )
         return serializer.data
+
+    def get_transactions(self, budget):
+        transactions = Transaction.objects.filter(
+            budget_category__group__budget__pk=budget.pk)
+        serializer = TransactionSerializer(
+            transactions,
+            many=True,
+            context={'request': self.context['request']}
+        )
+        return serializer.data
+
 
     class Meta:
         model = Budget
