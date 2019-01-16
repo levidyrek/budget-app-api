@@ -67,6 +67,8 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         budget_year = data.get('budget_year')
         category = data.get('category')
 
+        # If this is an update, default values to the instance
+        # values if updated values were not given.
         if self.instance:
             budget_month = budget_month or self.instance.group.budget.month
             budget_year = budget_year or self.instance.group.budget.year
@@ -97,11 +99,18 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         return super().update(instance, validated_data)
 
     def get_or_create_related(self, validated_data):
+        """
+        Takes given budget/category/group data and either creates
+        the corresponding models, if the don't already exist, or uses
+        the existing ones to populate the required group field.
+        """
         budget_month = validated_data.get('budget_month')
         budget_year = validated_data.get('budget_year')
         category = validated_data.get('category')
         group = validated_data.get('group', {}).get('name')
 
+        # If this is an update, default values to the instance
+        # values if updated values were not given.
         if self.instance:
             budget_month = budget_month or self.instance.group.budget.month
             budget_year = budget_year or self.instance.group.budget.year
@@ -140,15 +149,34 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     budget_category = serializers.PrimaryKeyRelatedField(
         queryset=BudgetCategory.objects.all(),
     )
-    recipient = serializers.PrimaryKeyRelatedField(
-        queryset=Payee.objects.all(),
-    )
+    payee = serializers.CharField()
+
+    def create(self, validated_data):
+        self.get_or_create_related(validated_data)
+        return Transaction.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        self.get_or_create_related(validated_data)
+        return super().update(instance, validated_data)
+
+    def get_or_create_related(self, validated_data):
+        payee = validated_data.get('payee')
+
+        # If this is not an update or payee is being updated,
+        # get or create the payee instance matching the name given.
+        if not self.instance or payee is not None:
+            payee, created = Payee.objects.get_or_create(
+                name=payee,
+                owner=self.context['request'].user,
+            )
+
+        validated_data['payee'] = payee
 
     class Meta:
         model = Transaction
         fields = (
-            'url', 'amount', 'budget_category_id', 'date', 'inflow',
-            'recipient',
+            'url', 'pk', 'amount', 'budget_category', 'date', 'inflow',
+            'payee',
         )
         list_serializer_class = DictSerializer
 
@@ -206,12 +234,11 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
         )
         return serializer.data
 
-
     class Meta:
         model = Budget
         fields = (
             'url', 'pk', 'owner', 'month', 'year', 'budget_category_groups',
-            'budget_categories',
+            'budget_categories', 'transactions',
         )
 
 

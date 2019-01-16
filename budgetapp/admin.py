@@ -16,7 +16,7 @@ class BudgetCategoryAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('amount', 'recipient', 'budget_category', 'date',)
+    list_display = ('amount', 'payee', 'budget_category', 'date',)
 
 
 admin.site.register(Budget, BudgetAdmin)

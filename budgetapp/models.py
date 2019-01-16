@@ -95,7 +95,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(
         max_digits=20, decimal_places=2
     )
-    recipient = models.ForeignKey('Payee', on_delete=models.CASCADE)
+    payee = models.ForeignKey('Payee', on_delete=models.CASCADE)
     budget_category = models.ForeignKey(
         'BudgetCategory', on_delete=models.CASCADE
     )
@@ -108,7 +108,7 @@ class Transaction(models.Model):
 
     def __str__(self):  # pragma: no cover
         return str(self.amount) + ' ' \
-               + self.recipient.name + ' ' \
+               + self.payee.name + ' ' \
                + str(self.budget_category) + ' ' \
                + str(self.date) + ' ' \
                + self.budget_category.group.budget.owner.username + ' ' \
@@ -118,6 +118,9 @@ class Transaction(models.Model):
 class Payee(models.Model):
     name = models.CharField(max_length=30)
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('name', 'owner',)
 
     def __str__(self):
         return self.name
