@@ -164,8 +164,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
                 name=payee,
                 owner=self.context['request'].user,
             )
-
-        validated_data['payee'] = payee
+            validated_data['payee'] = payee
 
     class Meta:
         model = Transaction

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import date
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -286,22 +286,26 @@ class TransactionViewTests(TestCase):
             limit=100,
             spent=100,
         )
-        self.payee = Payee.objects.create(
+        self.payee1 = Payee.objects.create(
             name='Payee 1',
+            owner=self.user,
+        )
+        self.payee2 = Payee.objects.create(
+            name='Payee 2',
             owner=self.user,
         )
         self.transaction = Transaction.objects.create(
             amount=100,
-            payee=self.payee,
+            payee=self.payee1,
             budget_category=self.category,
-            date=datetime.now(),
+            date=date(2019, 1, 16),
             inflow=False,
         )
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def test_budget_category_create(self):
+    def test_budget_category_create_payee_existing(self):
         response = self.client.post('/transactions/', {
             'amount': 100,
             'budget_category': self.category.pk,
@@ -324,7 +328,7 @@ class TransactionViewTests(TestCase):
             'budget_category': self.category.pk,
             'date': '2019-01-16',
             'inflow': False,
-            'payee': 'Payee 2'
+            'payee': 'Non-Existing Payee'
         })
         self.assertEqual(response.status_code, 201)
 
@@ -333,9 +337,9 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
         self.assertEqual(data['inflow'], False)
-        self.assertEqual(data['payee'], 'Payee 2')
+        self.assertEqual(data['payee'], 'Non-Existing Payee')
 
-    def test_budget_category_put(self):
+    def test_budget_category_put_payee_existing(self):
         response = self.client.put(
             '/transactions/{}/'.format(self.transaction.pk), {
                 'amount': 100,
@@ -352,3 +356,63 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['date'], '2019-01-16')
         self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Payee 2')
+
+    def test_budget_category_put_payee_not_existing(self):
+        response = self.client.put(
+            '/transactions/{}/'.format(self.transaction.pk), {
+                'amount': 100,
+                'budget_category': self.category.pk,
+                'date': '2019-01-16',
+                'inflow': False,
+                'payee': 'Non-Existing Payee'
+            })
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Non-Existing Payee')
+
+    def test_budget_category_patch_payee_existing(self):
+        response = self.client.patch(
+            '/transactions/{}/'.format(self.transaction.pk), {
+                'payee': 'Payee 2'
+            })
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Payee 2')
+
+    def test_budget_category_patch_payee_not_existing(self):
+        response = self.client.patch(
+            '/transactions/{}/'.format(self.transaction.pk), {
+                'payee': 'Non-Existing Payee'
+            })
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Non-Existing Payee')
+
+    def test_budget_category_patch_non_payee(self):
+        response = self.client.patch(
+            '/transactions/{}/'.format(self.transaction.pk), {
+                'amount': 200
+            })
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '200.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Payee 1')
