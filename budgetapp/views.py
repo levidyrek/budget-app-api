@@ -6,12 +6,11 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import (Budget, BudgetCategory, BudgetCategoryGroup, Transaction)
+from .models import Budget, BudgetCategory, BudgetCategoryGroup, Transaction
 from .permissions import IsOwnerOrAdmin
 from .serializers import (BudgetCategoryGroupSerializer,
-                          BudgetCategorySerializer,
-                          BudgetSerializer, TransactionSerializer,
-                          UserSerializer)
+                          BudgetCategorySerializer, BudgetSerializer,
+                          TransactionSerializer, UserSerializer)
 
 
 class OwnerMixin:

@@ -5,6 +5,7 @@ django-filter==2.0.0
 django-jenkins==0.110.0
 djangorestframework==3.8.2
 flake8==3.6.0
+ipdb==0.11
 isort==4.3.4
 Markdown==3.0.1
 psycopg2-binary==2.7.5

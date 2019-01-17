@@ -1,11 +1,13 @@
 import json
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient, APIRequestFactory
 
-from ..models import Budget, BudgetCategory, BudgetCategoryGroup
+from ..models import (Budget, BudgetCategory, BudgetCategoryGroup, Payee,
+                      Transaction)
 from ..views import ObtainAuthTokenCookieView, logout
 
 
@@ -260,3 +262,93 @@ class BudgetCategoryViewTests(TestCase):
         data = json.loads(response.content)
         self.assertEqual(data['limit'], '200.00')
         self.assertEqual(data['spent'], '200.00')
+
+
+class TransactionViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username='test',
+            password='test',
+        )
+        budget = Budget.objects.create(
+            month='JAN',
+            year=2000,
+            owner=self.user,
+        )
+        self.group = BudgetCategoryGroup.objects.create(
+            name='Group 1',
+            budget=budget,
+        )
+        self.category = BudgetCategory.objects.create(
+            category='Category 1',
+            group=self.group,
+            limit=100,
+            spent=100,
+        )
+        self.payee = Payee.objects.create(
+            name='Payee 1',
+            owner=self.user,
+        )
+        self.transaction = Transaction.objects.create(
+            amount=100,
+            payee=self.payee,
+            budget_category=self.category,
+            date=datetime.now(),
+            inflow=False,
+        )
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_budget_category_create(self):
+        response = self.client.post('/transactions/', {
+            'amount': 100,
+            'budget_category': self.category.pk,
+            'date': '2019-01-16',
+            'inflow': False,
+            'payee': 'Payee 1'
+        })
+        self.assertEqual(response.status_code, 201)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Payee 1')
+
+    def test_budget_category_create_payee_not_existing(self):
+        response = self.client.post('/transactions/', {
+            'amount': 100,
+            'budget_category': self.category.pk,
+            'date': '2019-01-16',
+            'inflow': False,
+            'payee': 'Payee 2'
+        })
+        self.assertEqual(response.status_code, 201)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Payee 2')
+
+    def test_budget_category_put(self):
+        response = self.client.put(
+            '/transactions/{}/'.format(self.transaction.pk), {
+                'amount': 100,
+                'budget_category': self.category.pk,
+                'date': '2019-01-16',
+                'inflow': False,
+                'payee': 'Payee 2'
+            })
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertEqual(data['amount'], '100.00')
+        self.assertEqual(data['budget_category'], self.category.pk)
+        self.assertEqual(data['date'], '2019-01-16')
+        self.assertEqual(data['inflow'], False)
+        self.assertEqual(data['payee'], 'Payee 2')

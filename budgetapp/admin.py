@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import (Budget, BudgetCategory, BudgetCategoryGroup, Transaction)
+from .models import Budget, BudgetCategory, BudgetCategoryGroup, Transaction
 
 
 class BudgetAdmin(admin.ModelAdmin):
