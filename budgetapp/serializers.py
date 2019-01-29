@@ -175,6 +175,14 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         list_serializer_class = DictSerializer
 
 
+class PayeeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Payee
+        fields = ('pk', 'name')
+        list_serializer_class = DictSerializer
+
+
 class BudgetCategoryGroupListSerializer(DictSerializer):
     dict_key = 'name'
 
@@ -207,6 +215,7 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
     )
     budget_categories = serializers.SerializerMethodField()
     transactions = serializers.SerializerMethodField()
+    payees = serializers.SerializerMethodField()
 
     def get_budget_categories(self, budget):
         budget_cats = BudgetCategory.objects.filter(
@@ -228,11 +237,22 @@ class BudgetSerializer(serializers.HyperlinkedModelSerializer):
         )
         return serializer.data
 
+    def get_payees(self, budget):
+        payees = Payee.objects.filter(
+            owner=self.context['request'].user,
+        )
+        serializer = PayeeSerializer(
+            payees,
+            many=True,
+            context={'request': self.context['request']}
+        )
+        return serializer.data
+
     class Meta:
         model = Budget
         fields = (
             'url', 'pk', 'owner', 'month', 'year', 'budget_category_groups',
-            'budget_categories', 'transactions',
+            'budget_categories', 'transactions', 'payees',
         )
 
 
