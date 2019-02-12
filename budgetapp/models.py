@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from django.db.models import Sum
 
 
 class Budget(models.Model):
@@ -72,9 +73,14 @@ class BudgetCategory(models.Model):
     limit = models.DecimalField(
         max_digits=20, decimal_places=2, default=0
     )
-    spent = models.DecimalField(
-        max_digits=20, decimal_places=2, default=0
-    )
+
+    @property
+    def spent(self):
+        return (
+            Transaction.objects
+            .filter(budget_category_id=self.pk)
+            .aggregate(Sum('amount'))['amount__sum']
+        )
 
     @property
     def remaining(self):
@@ -112,7 +118,7 @@ class Transaction(models.Model):
                + str(self.budget_category) + ' ' \
                + str(self.date) + ' ' \
                + self.budget_category.group.budget.owner.username + ' ' \
-               + self.inflow
+               + str(self.inflow)
 
 
 class Payee(models.Model):
