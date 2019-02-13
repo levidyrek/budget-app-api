@@ -80,7 +80,7 @@ class BudgetCategory(models.Model):
             Transaction.objects
             .filter(budget_category_id=self.pk)
             .aggregate(Sum('amount'))['amount__sum']
-        )
+        ) or 0
 
     @property
     def remaining(self):
