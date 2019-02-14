@@ -26,7 +26,6 @@ class SerializerTests(TestCase):
             category='Category 1',
             group=self.group,
             limit=100,
-            spent=100,
         )
 
         self.request_factory = APIRequestFactory()
@@ -38,7 +37,6 @@ class SerializerTests(TestCase):
             'category': 'Category 2',
             'group': self.group.name,
             'limit': 100,
-            'spent': 100,
         })
         self.assertTrue(serializer.is_valid())
 
@@ -49,7 +47,6 @@ class SerializerTests(TestCase):
             'category': 'Category 1',
             'group': self.group.name,
             'limit': 100,
-            'spent': 100,
         })
         self.assertFalse(serializer.is_valid())
         self.assertEqual(serializer.errors, {

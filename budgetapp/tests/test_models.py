@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -20,13 +22,23 @@ class BudgetCategoryTests(TestCase):
             name='Group 1',
             budget=budget,
         )
+        self.payee = models.Payee.objects.create(
+            name='Payee 1',
+            owner=user,
+        )
 
     def test_remaining_zero(self):
         category = models.BudgetCategory.objects.create(
             category='Category 1',
             group=self.group,
             limit=100,
-            spent=100,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=100,
+            date=datetime.now(),
+            inflow=False,
         )
         self.assertEqual(category.remaining, 0)
 
@@ -35,7 +47,13 @@ class BudgetCategoryTests(TestCase):
             category='Category 1',
             group=self.group,
             limit=200,
-            spent=100,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=100,
+            date=datetime.now(),
+            inflow=False,
         )
         self.assertEqual(category.remaining, 100)
 
@@ -44,6 +62,12 @@ class BudgetCategoryTests(TestCase):
             category='Category 1',
             group=self.group,
             limit=100,
-            spent=200,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=200,
+            date=datetime.now(),
+            inflow=False,
         )
         self.assertEqual(category.remaining, -100)

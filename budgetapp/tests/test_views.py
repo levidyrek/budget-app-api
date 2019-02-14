@@ -68,7 +68,6 @@ class BudgetCategoryViewTests(TestCase):
             category='Category 1',
             group=self.group,
             limit=100,
-            spent=100,
         )
 
         self.client = APIClient()
@@ -81,7 +80,6 @@ class BudgetCategoryViewTests(TestCase):
             'category': 'Category 2',
             'group': self.group.name,
             'limit': 100,
-            'spent': 100,
         })
         self.assertEqual(response.status_code, 201)
 
@@ -89,7 +87,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(data['category'], 'Category 2')
         self.assertEqual(data['group'], self.group.name)
         self.assertEqual(data['limit'], '100.00')
-        self.assertEqual(data['spent'], '100.00')
+        self.assertEqual(data['spent'], 0)
 
     def test_budget_category_create_related_not_existing(self):
         """
@@ -102,7 +100,6 @@ class BudgetCategoryViewTests(TestCase):
             'category': 'Category 2',
             'group': 'Not Existing',
             'limit': 100,
-            'spent': 100,
         })
         self.assertEqual(response.status_code, 201)
 
@@ -110,7 +107,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(data['category'], 'Category 2')
         self.assertEqual(data['group'], 'Not Existing')
         self.assertEqual(data['limit'], '100.00')
-        self.assertEqual(data['spent'], '100.00')
+        self.assertEqual(data['spent'], 0)
 
         category = BudgetCategory.objects.get(category='Category 2')
         self.assertEqual(category.group.budget.year, 9999)
@@ -118,7 +115,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(category.category, 'Category 2')
         self.assertEqual(category.group.name, 'Not Existing')
         self.assertEqual(category.limit, 100)
-        self.assertEqual(category.spent, 100)
+        self.assertEqual(category.spent, 0)
 
     def test_budget_category_create_insufficient_fields(self):
         response = self.client.post('/budgetcategories/', {
@@ -126,7 +123,6 @@ class BudgetCategoryViewTests(TestCase):
             'category': 'Category 2',
             'group': 'Not Existing',
             'limit': 100,
-            'spent': 100,
         })
         self.assertEqual(response.status_code, 400)
 
@@ -138,7 +134,6 @@ class BudgetCategoryViewTests(TestCase):
                 'category': 'Category 2',
                 'group': self.group.name,
                 'limit': 100,
-                'spent': 100,
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -147,7 +142,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(data['category'], 'Category 2')
         self.assertEqual(data['group'], self.group.name)
         self.assertEqual(data['limit'], '100.00')
-        self.assertEqual(data['spent'], '100.00')
+        self.assertEqual(data['spent'], 0)
 
     def test_budget_category_update_related_not_existing(self):
         """
@@ -161,7 +156,6 @@ class BudgetCategoryViewTests(TestCase):
                 'category': 'Category 2',
                 'group': 'Not Existing',
                 'limit': 100,
-                'spent': 100,
             }
         )
         self.assertEqual(response.status_code, 200)
@@ -170,7 +164,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(data['category'], 'Category 2')
         self.assertEqual(data['group'], 'Not Existing')
         self.assertEqual(data['limit'], '100.00')
-        self.assertEqual(data['spent'], '100.00')
+        self.assertEqual(data['spent'], 0)
 
         category = BudgetCategory.objects.get(category='Category 2')
         self.assertEqual(category.group.budget.year, 9999)
@@ -178,7 +172,7 @@ class BudgetCategoryViewTests(TestCase):
         self.assertEqual(category.category, 'Category 2')
         self.assertEqual(category.group.name, 'Not Existing')
         self.assertEqual(category.limit, 100)
-        self.assertEqual(category.spent, 100)
+        self.assertEqual(category.spent, 0)
 
     def test_budget_category_update_insufficient_fields(self):
         response = self.client.post('/budgetcategories/', {
@@ -186,7 +180,6 @@ class BudgetCategoryViewTests(TestCase):
             'category': 'Category 2',
             'group': 'Not Existing',
             'limit': 100,
-            'spent': 100,
         })
         self.assertEqual(response.status_code, 400)
 
@@ -254,14 +247,12 @@ class BudgetCategoryViewTests(TestCase):
         response = self.client.patch(
             '/budgetcategories/{}/'.format(self.category.id), {
                 'limit': 200,
-                'spent': 200,
             }
         )
         self.assertEqual(response.status_code, 200)
 
         data = json.loads(response.content)
         self.assertEqual(data['limit'], '200.00')
-        self.assertEqual(data['spent'], '200.00')
 
 
 class TransactionViewTests(TestCase):
@@ -284,7 +275,6 @@ class TransactionViewTests(TestCase):
             category='Category 1',
             group=self.group,
             limit=100,
-            spent=100,
         )
         self.payee1 = Payee.objects.create(
             name='Payee 1',
