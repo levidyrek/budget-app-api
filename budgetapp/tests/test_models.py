@@ -38,7 +38,6 @@ class BudgetCategoryTests(TestCase):
             payee=self.payee,
             amount=100,
             date=datetime.now(),
-            inflow=False,
         )
         self.assertEqual(category.remaining, 0)
 
@@ -53,7 +52,6 @@ class BudgetCategoryTests(TestCase):
             payee=self.payee,
             amount=100,
             date=datetime.now(),
-            inflow=False,
         )
         self.assertEqual(category.remaining, 100)
 
@@ -68,7 +66,6 @@ class BudgetCategoryTests(TestCase):
             payee=self.payee,
             amount=200,
             date=datetime.now(),
-            inflow=False,
         )
         self.assertEqual(category.remaining, -100)
 
@@ -91,14 +88,12 @@ class BudgetCategoryTests(TestCase):
             payee=self.payee,
             amount=100,
             date=datetime.now(),
-            inflow=False,
         )
         models.Transaction.objects.create(
             budget_category=category,
             payee=self.payee,
             amount=100,
             date=datetime.now(),
-            inflow=False,
         )
         self.assertEqual(category.spent, 200)
 
@@ -113,13 +108,11 @@ class BudgetCategoryTests(TestCase):
             payee=self.payee,
             amount=100,
             date=datetime.now(),
-            inflow=False,
         )
         models.Transaction.objects.create(
             budget_category=category,
             payee=self.payee,
             amount=-200,
             date=datetime.now(),
-            inflow=False,
         )
         self.assertEqual(category.spent, -100)

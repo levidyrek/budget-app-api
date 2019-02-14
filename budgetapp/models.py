@@ -106,7 +106,6 @@ class Transaction(models.Model):
         'BudgetCategory', on_delete=models.CASCADE
     )
     date = models.DateField()
-    inflow = models.BooleanField()
 
     @property
     def owner(self):
@@ -117,8 +116,7 @@ class Transaction(models.Model):
                + self.payee.name + ' ' \
                + str(self.budget_category) + ' ' \
                + str(self.date) + ' ' \
-               + self.budget_category.group.budget.owner.username + ' ' \
-               + str(self.inflow)
+               + self.budget_category.group.budget.owner.username + ' '
 
 
 class Payee(models.Model):

@@ -169,7 +169,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Transaction
         fields = (
-            'url', 'pk', 'amount', 'budget_category', 'date', 'inflow',
+            'url', 'pk', 'amount', 'budget_category', 'date',
             'payee',
         )
         list_serializer_class = DictSerializer

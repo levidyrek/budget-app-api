@@ -289,7 +289,6 @@ class TransactionViewTests(TestCase):
             payee=self.payee1,
             budget_category=self.category,
             date=date(2019, 1, 16),
-            inflow=False,
         )
 
         self.client = APIClient()
@@ -300,7 +299,6 @@ class TransactionViewTests(TestCase):
             'amount': 100,
             'budget_category': self.category.pk,
             'date': '2019-01-16',
-            'inflow': False,
             'payee': 'Payee 1'
         })
         self.assertEqual(response.status_code, 201)
@@ -309,7 +307,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Payee 1')
 
     def test_budget_category_create_payee_not_existing(self):
@@ -317,7 +314,6 @@ class TransactionViewTests(TestCase):
             'amount': 100,
             'budget_category': self.category.pk,
             'date': '2019-01-16',
-            'inflow': False,
             'payee': 'Non-Existing Payee'
         })
         self.assertEqual(response.status_code, 201)
@@ -326,7 +322,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Non-Existing Payee')
 
     def test_budget_category_put_payee_existing(self):
@@ -335,7 +330,7 @@ class TransactionViewTests(TestCase):
                 'amount': 100,
                 'budget_category': self.category.pk,
                 'date': '2019-01-16',
-                'inflow': False,
+
                 'payee': 'Payee 2'
             })
         self.assertEqual(response.status_code, 200)
@@ -344,7 +339,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Payee 2')
 
     def test_budget_category_put_payee_not_existing(self):
@@ -353,7 +347,7 @@ class TransactionViewTests(TestCase):
                 'amount': 100,
                 'budget_category': self.category.pk,
                 'date': '2019-01-16',
-                'inflow': False,
+
                 'payee': 'Non-Existing Payee'
             })
         self.assertEqual(response.status_code, 200)
@@ -362,7 +356,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Non-Existing Payee')
 
     def test_budget_category_patch_payee_existing(self):
@@ -376,7 +369,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Payee 2')
 
     def test_budget_category_patch_payee_not_existing(self):
@@ -390,7 +382,6 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '100.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Non-Existing Payee')
 
     def test_budget_category_patch_non_payee(self):
@@ -404,5 +395,4 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['amount'], '200.00')
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
-        self.assertEqual(data['inflow'], False)
         self.assertEqual(data['payee'], 'Payee 1')
