@@ -71,3 +71,55 @@ class BudgetCategoryTests(TestCase):
             inflow=False,
         )
         self.assertEqual(category.remaining, -100)
+
+    def test_spent_no_transactions(self):
+        category = models.BudgetCategory.objects.create(
+            category='Category 1',
+            group=self.group,
+            limit=100,
+        )
+        self.assertEqual(category.spent, 0)
+
+    def test_spent_positive(self):
+        category = models.BudgetCategory.objects.create(
+            category='Category 1',
+            group=self.group,
+            limit=100,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=100,
+            date=datetime.now(),
+            inflow=False,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=100,
+            date=datetime.now(),
+            inflow=False,
+        )
+        self.assertEqual(category.spent, 200)
+
+    def test_spent_negative(self):
+        category = models.BudgetCategory.objects.create(
+            category='Category 1',
+            group=self.group,
+            limit=100,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=100,
+            date=datetime.now(),
+            inflow=False,
+        )
+        models.Transaction.objects.create(
+            budget_category=category,
+            payee=self.payee,
+            amount=-200,
+            date=datetime.now(),
+            inflow=False,
+        )
+        self.assertEqual(category.spent, -100)
