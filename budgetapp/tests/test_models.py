@@ -1,9 +1,80 @@
 from datetime import datetime
 
+from budgetapp import models
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from budgetapp import models
+
+class BudgetTests(TestCase):
+
+    def setUp(self):
+        user = User.objects.create(
+            username='test',
+            password='test',
+        )
+
+        self.budget1 = models.Budget.objects.create(
+            month='JAN',
+            year=2000,
+            owner=user,
+        )
+        group1 = models.BudgetCategoryGroup.objects.create(
+            name='Budget 1 Group 1',
+            budget=self.budget1,
+        )
+        models.BudgetCategory.objects.create(
+            category='Budget 1 Category 1',
+            group=group1,
+            limit=100,
+        )
+        models.BudgetCategory.objects.create(
+            category='Budget 1 Category 2',
+            group=group1,
+            limit=200,
+        )
+
+        self.budget2 = models.Budget.objects.create(
+            month='FEB',
+            year=2000,
+            owner=user,
+        )
+        group2 = models.BudgetCategoryGroup.objects.create(
+            name='Budget 2 Group 1',
+            budget=self.budget2,
+        )
+        models.BudgetCategory.objects.create(
+            category='Budget 2 Category 1',
+            group=group2,
+            limit=100,
+        )
+        models.BudgetCategory.objects.create(
+            category='Budget 2 Category 2',
+            group=group2,
+            limit=200,
+        )
+
+    def test_copy(self):
+        self.budget1.copy_categories(self.budget2)
+
+        # Groups are copied.
+        groups = list(
+            self.budget1.budget_category_groups
+            .order_by('name')
+            .values_list('name', flat=True)
+        )
+        self.assertEqual(groups, ['Budget 2 Group 1'])
+
+        # Categories are copied.
+        categories = list(
+            models.BudgetCategory.objects.filter(
+                group__budget=self.budget1,
+            )
+            .order_by('category')
+            .values_list('category', flat=True)
+        )
+        self.assertEqual(categories, [
+            'Budget 2 Category 1', 'Budget 2 Category 2',
+        ])
 
 
 class BudgetCategoryTests(TestCase):

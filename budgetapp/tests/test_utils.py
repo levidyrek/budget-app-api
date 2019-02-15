@@ -1,7 +1,6 @@
+from budgetapp import models
 from django.contrib.auth.models import User
 from django.test import TestCase
-
-from budgetapp import models
 
 from ..utils.permissions import is_owner_or_admin
 

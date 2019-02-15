@@ -32,6 +32,27 @@ class Budget(models.Model):
         'auth.User', related_name=related_name, on_delete=models.CASCADE
     )
 
+    def copy_categories(self, budget):
+        """
+        Removes all categories from budget and copies ones
+        from the given budget.
+        """
+        # Remove existing groups/categories.
+        self.budget_category_groups.all().delete()
+
+        # Make copies of groups.
+        for group in budget.budget_category_groups.iterator():
+            categories = group.budget_categories.all()
+            group.pk = None
+            group.budget = self
+            group.save()
+
+            # Make copies of categories.
+            for category in categories:
+                category.pk = None
+                category.group = group
+                category.save()
+
     class Meta:
         unique_together = ('owner', 'month', 'year')
 
