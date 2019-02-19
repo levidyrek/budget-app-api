@@ -1,5 +1,7 @@
+from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
+from django.views.generic import View
 from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -26,6 +28,15 @@ class BudgetViewSet(OwnerMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Budget.objects.filter(owner=self.request.user)
+
+
+class CopyBudgetForm(forms.Form):
+    pass
+
+
+class CopyBudgetView(View):
+    def post(self, request):
+        pass
 
 
 class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):
