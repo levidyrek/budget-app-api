@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views.generic import View
 from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
@@ -31,11 +31,26 @@ class BudgetViewSet(OwnerMixin, viewsets.ModelViewSet):
 
 
 class CopyBudgetForm(forms.Form):
-    pass
+    source = forms.ModelChoiceField(queryset=Budget.objects.all())
+    target_year = forms.IntegerField()
+    target_month = forms.CharField()
 
 
 class CopyBudgetView(View):
     def post(self, request):
+        form = CopyBudgetForm(request.POST)
+        if form.is_valid():
+            params = form.cleaned_data
+            self.copy_budget(
+                params['source'],
+                params['target_year'],
+                params['target_month'],
+            )
+            return HttpResponse()
+        else:
+            return HttpResponseBadRequest()
+
+    def copy_budget(self, source_pk, target_year, target_month):
         pass
 
 

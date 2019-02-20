@@ -396,3 +396,49 @@ class TransactionViewTests(TestCase):
         self.assertEqual(data['budget_category'], self.category.pk)
         self.assertEqual(data['date'], '2019-01-16')
         self.assertEqual(data['payee'], 'Payee 1')
+
+
+class CopyBudgetViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(
+            username='test',
+            password='test',
+        )
+        self.budget1 = Budget.objects.create(
+            month='JAN',
+            year=2000,
+            owner=self.user,
+        )
+        self.group = BudgetCategoryGroup.objects.create(
+            name='Group 1',
+            budget=self.budget1,
+        )
+        self.category1 = BudgetCategory.objects.create(
+            category='Category 1',
+            group=self.group,
+            limit=100,
+        )
+        self.category2 = BudgetCategory.objects.create(
+            category='Category 2',
+            group=self.group,
+            limit=100,
+        )
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_basic_request(self):
+        response = self.client.post('/copy-budget/', {
+            'source': self.budget1.pk,
+            'target_year': 2000,
+            'target_month': 'FEB',
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_bad_request(self):
+        response = self.client.post('/copy-budget/', {
+            'source': self.budget1.pk,
+            'target_year': 2000,
+        })
+        self.assertEqual(response.status_code, 400)

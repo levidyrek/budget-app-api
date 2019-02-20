@@ -25,5 +25,6 @@ urlpatterns = [
          views.UserRetrieveUpdateDestroyView.as_view(),
          name='user-detail'),
     path('user-info/', views.UserDetailView.as_view(), name='user-info'),
+    path('copy-budget/', views.CopyBudgetView.as_view(), name='copy-budget'),
     path('', include(router.urls)),
 ]
