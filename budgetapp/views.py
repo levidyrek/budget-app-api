@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-from django.views.generic import View
 from rest_framework import generics, permissions, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -36,7 +35,9 @@ class CopyBudgetForm(forms.Form):
     target_month = forms.CharField()
 
 
-class CopyBudgetView(View):
+class CopyBudgetView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request):
         form = CopyBudgetForm(request.POST)
         if form.is_valid():
@@ -45,13 +46,19 @@ class CopyBudgetView(View):
                 params['source'],
                 params['target_year'],
                 params['target_month'],
+                request.user,
             )
             return HttpResponse()
         else:
             return HttpResponseBadRequest()
 
-    def copy_budget(self, source_pk, target_year, target_month):
-        pass
+    def copy_budget(self, source, target_year, target_month, user):
+        target, created = Budget.objects.get_or_create(
+            year=target_year,
+            month=target_month,
+            owner=user,
+        )
+        target.copy_categories(source)
 
 
 class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):
