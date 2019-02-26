@@ -410,19 +410,39 @@ class CopyBudgetViewTests(TestCase):
             year=2000,
             owner=self.user,
         )
-        self.group = BudgetCategoryGroup.objects.create(
+        self.group1 = BudgetCategoryGroup.objects.create(
             name='Group 1',
             budget=self.budget1,
         )
         self.category1 = BudgetCategory.objects.create(
             category='Category 1',
-            group=self.group,
+            group=self.group1,
             limit=100,
         )
         self.category2 = BudgetCategory.objects.create(
             category='Category 2',
-            group=self.group,
+            group=self.group1,
             limit=100,
+        )
+
+        self.budget2 = Budget.objects.create(
+            month='FEB',
+            year=2000,
+            owner=self.user,
+        )
+        self.group2 = BudgetCategoryGroup.objects.create(
+            name='Group 2',
+            budget=self.budget2,
+        )
+        self.category3 = BudgetCategory.objects.create(
+            category='Category 3',
+            group=self.group2,
+            limit=200,
+        )
+        self.category4 = BudgetCategory.objects.create(
+            category='Category 4',
+            group=self.group2,
+            limit=200,
         )
 
         self.client = APIClient()
@@ -440,5 +460,74 @@ class CopyBudgetViewTests(TestCase):
         response = self.client.post('/copy-budget/', {
             'source': self.budget1.pk,
             'target_year': 2000,
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_copy_existing_to_existing(self):
+        response = self.client.post('/copy-budget/', {
+            'source': self.budget1.pk,
+            'target_year': 2000,
+            'target_month': 'FEB',
+        })
+        self.assertEqual(response.status_code, 200)
+
+        groups = \
+            self.budget2.budget_category_groups.values_list('name', flat=True)
+        self.assertEqual(list(groups), ['Group 1'])
+
+        categories = (
+            self.budget2
+            .budget_category_groups.first()
+            .budget_categories.values_list('category', flat=True)
+        )
+        self.assertEqual(list(categories), ['Category 1', 'Category 2'])
+
+    def test_copy_existing_to_nonexisting(self):
+        response = self.client.post('/copy-budget/', {
+            'source': self.budget1.pk,
+            'target_year': 3000,
+            'target_month': 'FEB',
+        })
+        self.assertEqual(response.status_code, 200)
+
+        budget = Budget.objects.get(
+            year=3000,
+            month='FEB',
+            owner=self.user,
+        )
+
+        groups = \
+            budget.budget_category_groups.values_list('name', flat=True)
+        self.assertEqual(list(groups), ['Group 1'])
+
+        categories = (
+            budget
+            .budget_category_groups.first()
+            .budget_categories.values_list('category', flat=True)
+        )
+        self.assertEqual(list(categories), ['Category 1', 'Category 2'])
+
+    def test_copy_nonexisting(self):
+        response = self.client.post('/copy-budget/', {
+            'source': -1,
+            'target_year': 3000,
+            'target_month': 'FEB',
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_copy_another_users(self):
+        user = User.objects.create(
+            username='test2',
+            password='test2',
+        )
+        budget = Budget.objects.create(
+            month='JAN',
+            year=2000,
+            owner=user,
+        )
+        response = self.client.post('/copy-budget/', {
+            'source': budget.pk,
+            'target_year': 3000,
+            'target_month': 'FEB',
         })
         self.assertEqual(response.status_code, 400)

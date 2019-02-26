@@ -34,12 +34,25 @@ class CopyBudgetForm(forms.Form):
     target_year = forms.IntegerField()
     target_month = forms.CharField()
 
+    def __init__(self, request_user, *args, **kwargs):
+        self.request_user = request_user
+        super().__init__(*args, **kwargs)
+
+    def clean_source(self):
+        source = self.cleaned_data['source']
+        if source.owner != self.request_user:
+            raise forms.ValidationError(
+                'You cannot copy another user\'s budget.'
+            )
+
+        return source
+
 
 class CopyBudgetView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        form = CopyBudgetForm(request.POST)
+        form = CopyBudgetForm(request.user, request.POST)
         if form.is_valid():
             params = form.cleaned_data
             self.copy_budget(
