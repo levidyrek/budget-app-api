@@ -21,6 +21,9 @@ class Budget(models.Model):
         ('NOV', 'November'),
         ('DEC', 'December')
     )
+    MONTH_LOOKUP = {
+        choice[0]: index for index, choice in enumerate(MONTH_CHOICES)
+    }
 
     month = models.CharField(
         max_length=100,
@@ -52,6 +55,26 @@ class Budget(models.Model):
                 category.pk = None
                 category.group = group
                 category.save()
+
+    @property
+    def previous(self):
+        """
+        The previous month's budget, if one exists.
+        """
+        year = self.year
+        month_idx = self.MONTH_LOOKUP[self.month] - 1
+        if month_idx < 0:
+            month_idx = 11
+            year -= 1
+
+        try:
+            return Budget.objects.get(
+                owner=self.owner,
+                year=year,
+                month=self.MONTH_CHOICES[month_idx][0],
+            )
+        except Budget.DoesNotExist:
+            return None
 
     class Meta:
         unique_together = ('owner', 'month', 'year')
