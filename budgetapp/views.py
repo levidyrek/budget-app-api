@@ -30,7 +30,8 @@ class BudgetViewSet(OwnerMixin, viewsets.ModelViewSet):
 
 
 class CopyBudgetForm(forms.Form):
-    source = forms.ModelChoiceField(queryset=Budget.objects.all())
+    source = forms.ModelChoiceField(
+        queryset=Budget.objects.all(), required=False)
     target_year = forms.IntegerField()
     target_month = forms.CharField()
 
@@ -40,7 +41,7 @@ class CopyBudgetForm(forms.Form):
 
     def clean_source(self):
         source = self.cleaned_data['source']
-        if source.owner != self.request_user:
+        if source and source.owner != self.request_user:
             raise forms.ValidationError(
                 'You cannot copy another user\'s budget.'
             )
@@ -56,22 +57,33 @@ class CopyBudgetView(APIView):
         if form.is_valid():
             params = form.cleaned_data
             self.copy_budget(
-                params['source'],
                 params['target_year'],
                 params['target_month'],
                 request.user,
+                params.get('source'),
             )
             return HttpResponse()
         else:
             return HttpResponseBadRequest()
 
-    def copy_budget(self, source, target_year, target_month, user):
+    def copy_budget(self, target_year, target_month, user, source=None):
         target, created = Budget.objects.get_or_create(
             year=target_year,
             month=target_month,
             owner=user,
         )
-        target.copy_categories(source)
+
+        # Default the source to the previous month's budget.
+        if not source:
+            source = target.previous
+
+        # If there is a source budget, copy the categories. Otherwise,
+        # delete all categories, since the non-existing budget appears blank
+        # in the UI.
+        if source:
+            target.copy_categories(source)
+        else:
+            target.delete_categories()
 
 
 class BudgetCategoryGroupViewSet(viewsets.ModelViewSet):

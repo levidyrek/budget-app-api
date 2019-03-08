@@ -41,7 +41,7 @@ class Budget(models.Model):
         from the given budget.
         """
         # Remove existing groups/categories.
-        self.budget_category_groups.all().delete()
+        self.delete_categories()
 
         # Make copies of groups.
         for group in budget.budget_category_groups.iterator():
@@ -55,6 +55,9 @@ class Budget(models.Model):
                 category.pk = None
                 category.group = group
                 category.save()
+
+    def delete_categories(self):
+        self.budget_category_groups.all().delete()
 
     @property
     def previous(self):

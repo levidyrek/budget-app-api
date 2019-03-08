@@ -531,3 +531,39 @@ class CopyBudgetViewTests(TestCase):
             'target_month': 'FEB',
         })
         self.assertEqual(response.status_code, 400)
+
+    def test_copy_previous_month(self):
+        """
+        Defaults to the previous month's budget from the target
+        month if no source is given.
+        """
+        response = self.client.post('/copy-budget/', {
+            'target_year': 2000,
+            'target_month': 'FEB',
+        })
+        self.assertEqual(response.status_code, 200)
+
+        groups = \
+            self.budget2.budget_category_groups.values_list('name', flat=True)
+        self.assertEqual(list(groups), ['Group 1'])
+
+        categories = (
+            self.budget2
+            .budget_category_groups.first()
+            .budget_categories.values_list('category', flat=True)
+        )
+        self.assertEqual(list(categories), ['Category 1', 'Category 2'])
+
+    def test_copy_no_previous_month(self):
+        """
+        If there is no previous month, all categories are cleared.
+        """
+        response = self.client.post('/copy-budget/', {
+            'target_year': 2000,
+            'target_month': 'JAN',
+        })
+        self.assertEqual(response.status_code, 200)
+
+        groups = \
+            self.budget1.budget_category_groups.count()
+        self.assertEqual(groups, 0)
