@@ -8,7 +8,7 @@ from django.test import TestCase
 class BudgetTests(TestCase):
 
     def setUp(self):
-        user = User.objects.create(
+        self.user = User.objects.create(
             username='test',
             password='test',
         )
@@ -16,7 +16,7 @@ class BudgetTests(TestCase):
         self.budget1 = models.Budget.objects.create(
             month='JAN',
             year=2000,
-            owner=user,
+            owner=self.user,
         )
         group1 = models.BudgetCategoryGroup.objects.create(
             name='Budget 1 Group 1',
@@ -36,7 +36,7 @@ class BudgetTests(TestCase):
         self.budget2 = models.Budget.objects.create(
             month='FEB',
             year=2000,
-            owner=user,
+            owner=self.user,
         )
         group2 = models.BudgetCategoryGroup.objects.create(
             name='Budget 2 Group 1',
@@ -75,6 +75,20 @@ class BudgetTests(TestCase):
         self.assertEqual(categories, [
             'Budget 2 Category 1', 'Budget 2 Category 2',
         ])
+
+    def test_previous(self):
+        self.assertEqual(self.budget2.previous, self.budget1)
+
+    def test_previous_none(self):
+        self.assertEqual(self.budget1.previous, None)
+
+    def test_previous_jan(self):
+        jan_99 = models.Budget.objects.create(
+            month='DEC',
+            year=1999,
+            owner=self.user,
+        )
+        self.assertEqual(self.budget1.previous, jan_99)
 
 
 class BudgetCategoryTests(TestCase):
