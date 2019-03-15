@@ -53,7 +53,7 @@ class CopyBudgetView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        form = CopyBudgetForm(request.user, request.POST)
+        form = CopyBudgetForm(request.user, request.data)
         if form.is_valid():
             params = form.cleaned_data
             self.copy_budget(
