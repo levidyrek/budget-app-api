@@ -72,6 +72,7 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
         existing = BudgetCategory.objects.filter(
             group__budget__month=budget_month,
             group__budget__year=budget_year,
+            group__budget__owner=self.context['request'].user,
             category=category,
         )
 
