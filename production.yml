@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  db-init:
+    env_file:
+      - production.env
+  api:
+    env_file:
+      - production.env

@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  db-init:
+    env_file:
+      - dev.env
+  api:
+    env_file:
+      - dev.env
+    volumes:
+      - .:/code
