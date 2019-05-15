@@ -29,7 +29,6 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'django_jenkins',
     'budgetapp.apps.BudgetappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -85,10 +84,11 @@ WSGI_APPLICATION = 'budgetsite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT': os.environ.get('DB_PORT', 5432),
+        'PASSWORD': os.environ['DB_PASS'],
     }
 }
 
@@ -150,8 +150,4 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:3000',
-)
-
-JENKINS_TASKS = (
-    'django_jenkins.tasks.run_flake8',
 )
