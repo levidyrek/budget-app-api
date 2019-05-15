@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: budget-rest-api-deploy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: budget-rest-api
+    spec:
+      containers:
+      - name: budget-rest-api
+        # TODO: Use correct image
+        image: nginx:1.10
