@@ -5,11 +5,52 @@ metadata:
 spec:
   replicas: 1
   template:
-    metadata:
-      labels:
-        app: budget-rest-api
+    labels:
+      app: budget-rest-api
     spec:
       containers:
-      - name: budget-rest-api
-        # TODO: Use correct image
-        image: nginx:1.10
+      - image: levipayne/budget-rest-api
+        name: api
+        ports:
+        - containerPort: 8000
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: budget-rest-api-svc
+labels:
+  app: budget-rest-api
+spec:
+  ports:
+  - name: "8000"
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: budget-rest-api-db-deploy
+labels:
+  name: budget-rest-api
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - image: postgres:11.1
+        name: budget-rest-api-db
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: budget-rest-api-db-init
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - image: levipayne/budget-rest-api-db-init
+        name: db-init
+      restartPolicy: Always
