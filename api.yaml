@@ -5,8 +5,9 @@ metadata:
 spec:
   replicas: 1
   template:
-    labels:
-      app: budget-rest-api
+    metadata:
+      labels:
+        app: budget-rest-api
     spec:
       containers:
       - image: levipayne/budget-rest-api
@@ -31,26 +32,17 @@ apiVersion: v1
 kind: Deployment
 metadata:
   name: budget-rest-api-db-deploy
-labels:
-  name: budget-rest-api
 spec:
   replicas: 1
   template:
+    metadata:
+      labels:
+        app: budget-rest-api-db
     spec:
       containers:
       - image: postgres:11.1
         name: budget-rest-api-db
-      restartPolicy: Always
----
-apiVersion: v1
-kind: Deployment
-metadata:
-  name: budget-rest-api-db-init
-spec:
-  replicas: 1
-  template:
-    spec:
-      containers:
+      initContainers:
       - image: levipayne/budget-rest-api-db-init
         name: db-init
       restartPolicy: Always
