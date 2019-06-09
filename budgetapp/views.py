@@ -163,9 +163,6 @@ class ObtainAuthTokenCookieView(ObtainAuthToken):
             'Token',
             token.key,
             max_age=60*60*24*14,  # Two weeks.
-            # TODO: localhost domain doesn't work in IE. In production, this
-            # should be set to a valid domain.
-            # domain='localhost',
             httponly=True
         )
         return response

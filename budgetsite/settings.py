@@ -19,11 +19,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = os.environ['DEBUG'].upper() == 'TRUE'
 
-ALLOWED_HOSTS = [
-    'testserver',
-    'localhost',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = []
+if os.getenv('ALLOWED_HOST'):
+    ALLOWED_HOSTS.append(os.environ['ALLOWED_HOST'])
 
 
 # Application definition
@@ -87,7 +85,7 @@ DATABASES = {
         'NAME': os.environ['DB_NAME'],
         'USER': os.environ['DB_USER'],
         'HOST': os.environ['DB_HOST'],
-        'PORT': os.environ.get('DB_PORT', 5432),
+        'PORT': os.getenv('DB_PORT', 5432),
         'PASSWORD': os.environ['DB_PASS'],
     }
 }
@@ -146,8 +144,26 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 
+# CORS Settings
+SESSION_COOKIE_SAMESITE = None
 CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = []
+if os.getenv('CORS_ORIGIN_HOST'):
+    CORS_ORIGIN_WHITELIST.append(os.getenv('CORS_ORIGIN_HOST'))
 
-CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',
-)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
+
