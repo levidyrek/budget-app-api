@@ -1,7 +1,9 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.db import models
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 
 class Budget(models.Model):
@@ -123,15 +125,11 @@ class BudgetCategory(models.Model):
 
     @property
     def spent(self):
-        return (
+        return Decimal(
             Transaction.objects
             .filter(budget_category_id=self.pk)
-            .aggregate(Sum('amount'))['amount__sum']
-        ) or 0
-
-    @property
-    def remaining(self):
-        return self.limit - self.spent
+            .aggregate(spent=Coalesce(Sum('amount'), Decimal(0)))['spent']
+        )
 
     @property
     def owner(self):

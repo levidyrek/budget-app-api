@@ -53,6 +53,7 @@ class BudgetCategorySerializer(serializers.HyperlinkedModelSerializer):
     group = serializers.CharField(source='group.name')
     budget_month = serializers.CharField(write_only=True)
     budget_year = serializers.IntegerField(write_only=True)
+    spent = serializers.CharField(read_only=True)
 
     def validate(self, data):
         super().validate(data)
