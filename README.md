@@ -4,13 +4,6 @@ Django REST API for creating/maintaining a personal budget.
 
 See [https://github.com/levidyrek/budget-app](https://github.com/levidyrek/budget-app) for the React web app.
 
-View a live demo of the full website below.
-
-Disclaimer:
-This website is purely for demo purposes. Do not enter personal data of any kind. Your data and/or account may be deleted at any time.
-
-[http://budgetapp.concisecoderdemos.com](http://budgetapp.concisecoderdemos.com)
-
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
